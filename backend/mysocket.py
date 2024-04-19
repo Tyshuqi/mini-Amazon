@@ -22,17 +22,13 @@ def serverSocket(host, port):
     return webapp_socket
     
     
-# def sendRequest(req_type, fd):
-#     data = req_type.SerializeToString()
-#     size = req_type.ByteSize()
-#     fd.sendall(size + data)
+# convert message to string and send
+def sendRequest(fd, req_msg):
+    req_string = req_msg.SerializeToString()
+    _EncodeVarint(fd.send, len(req_string), None)  # Encodes and sends the length
+    fd.send(req_string)  # Then send the message
     
-def sendRequest(fd, req_type):
-    req_type_string = req_type.SerializeToString()
-    _EncodeVarint(fd.send, len(req_type_string), None)  # Encodes and sends the length
-    fd.send(req_type_string)  # Then send the message
-    
-    
+# receive string and convert to message  
 def receiveResponse(fd, res_type):
     var_int_buff = []
     while True:

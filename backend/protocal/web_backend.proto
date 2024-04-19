@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+message Wbuy{
+    required int64 orderid = 1;
+    required int64 seqnum = 2;
+}
+
+message Waskmore{
+    required int64 productid = 1;
+    required int32 count = 2;
+    required int64 seqnum = 3;
+}
+
+message WCommands{
+    repeated Wbuy buy = 1;
+    repeated Waskmore askmore = 2;
+    
+}
+
+message BResponse{
+    repeated int64 acks = 1;
+}
