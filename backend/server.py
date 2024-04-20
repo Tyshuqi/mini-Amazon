@@ -1,71 +1,84 @@
 import threading
 from mysocket import *
 from handleWorld import *
+from handleUPS import *
 from ack import *
 import web_backend_pb2 as web
+import world_amazon_pb2 as world
+import amazon_ups_pb2 as ups
+from connectdb import get_db_connection
 
-def world_thread(world_fd, ack_list):
+def world_thread(world_fd, ups_fd, ack_tracker):
     try:
         connect(world_fd)
         world_id = rec_connected(world_fd)
         print(f"Connected to World with ID: {world_id}")
-        # Further processing and world interaction
         while True:
-            # Receive message from world
             res = receiveResponse(world_fd, world.AResponses)
             
             # remove ack from ack_list
             for ack in res.acks:
-                ack_list.remove_ack(ack)
+                ack_tracker.remove_ack(ack)
             
-            # if ready not null
             for ready in res.ready:
                 sendAck_world(world_fd, ready.seqnum)
-                packed(world_fd, ready.shipid, ready.seqnum)
+                # update order statuse to "packed"
+                packed(world_fd, ready.shipid)
                 
             for err in res.error:
-                # TODO: handle error
-                print(f"Error from world: {err.msg}")
+               print(f"Error from world: {err.err}, Origin SeqNum: {err.originseqnum}")
                 
-            for loaded in res.loaded:
-                # TODO: write loaded in handleWorld
-                
-                # TODO: send startDelivery to ups
-                
-                
+            for loaded_row in res.loaded:
+                sendAck_world(world_fd, loaded_row.seqnum)
+                # TODO 5: write loaded in handleWorld, just update order_status? has finished this!
+                loaded(world_fd, loaded_row.shipid) 
+                # TODO 6: send startDelivery to ups, has finished this!
+                startDelivery(ups_fd, loaded_row.shipid)
+            
+            for arrived in res.arrived:
+                sendAck_world(world_fd, arrived.seqnum)  
+                # TODO 3: write arrived in handleWorld, just update dabase, has finished this!
+                purchase_more_arrived(arrived.things.productid, arrived.things.count)
              
                 
     except Exception as e:
         print(f"Error in world thread: {e}")
 
 
-def ups_thread(ups_fd):
+def ups_thread(ups_fd, world_fd, ack_tracker):
     try:
         connect(ups_fd)
         print("Connected to UPS server")
-        # Further UPS communication
         
         while True:
             res = receiveResponse(ups_fd, ups.UCommand)
             
             # remove ack from ack_list
             for ack in res.acks:
-                ack_list.remove_ack(ack)
+                ack_tracker.remove_ack(ack)
              
             for arrive in res.arrived:
                 sendAck_ups(ups_fd, arrive.seqnum)
-                # TODO: start load, send to world
-                toLoad(world_fd, arrive.shipid)
-                
-            for deliver in res.delivered:
-                sendAck_ups(ups_fd, deliver.seqnum)
-                # TODO: update order status
+                # TODO 4: wait for order.status== packed,  start load, send to world
+                orderID = arrive.packageID
+                while True:
+                    try:
+                        if getOrderStatus(orderID) == "packed":
+                            print("Order is packed and ready for loading.")
+                            break
+                    except Exception as e:
+                        print(f"Error checking order status: {e}")
+                    # Wait before checking the status again to reduce load on the database
+                    time.sleep(2)    
+                toLoad(world_fd, orderID, arrive.truckID)
+ 
+            for delivered_row in res.delivered:
+                sendAck_ups(ups_fd, delivered_row.seqnum)
+                # TODO 7: just update order status?  has finished this!
+                delivered(ups_fd, delivered_row.packageID)
                 
             for err in res.error:
-                # TODO: handle error
-                print(f"Error from world: {err.msg}")
-            
-                
+                print(f"Error from ups: {err.err}, Origin SeqNum: {err.originseqnum}")
             
     except Exception as e:
         print(f"Error in UPS thread: {e}")
@@ -81,33 +94,48 @@ def webapp_thread(webapp_fd, world_fd, ups_fd):
             for buy in res.Wbuy:
                 sendAck_web(webapp_fd, buy.seqnum)
                 toPack(world_fd, buy.orderid)
-                # TODO request truck from ups
+                # TODO 2: request truck from ups, has finished this!
+                toOrderTruck(ups_fd, buy.orderid)
                 
                 
             for cancel in res.cancel:
+                pass
                 
             for askmore in res.Waskmore:
                 sendAck_web(webapp_fd, askmore.seqnum)
+                # TODO 1: has finished this
                 toPurchaseMore(world_fd, askmore.productid, askmore.amount)
         
     except Exception as e:
         print(f"Error in webapp thread: {e}")
 
 
+def getOrderStatus(order_id):
+    conn = get_db_connection()
+    if conn is None:
+        print("Database connection failed")
+        return None
+    
+    with conn:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT status FROM Order WHERE id = %s", (order_id,))
+            result = cursor.fetchone()
+            return result[0] if result else None
+
 
 
 if __name__ == "__main__":
     # Socket setup
-    world_fd = clientSocket("vcm-38127.vm.duke.edu", 23456)
-    ups_fd = clientSocket("vcm-", 34567)
-    webapp_fd = serverSocket("0.0.0.0", 45678)
+    worldFD = clientSocket("vcm-38127.vm.duke.edu", 23456)
+    upsFD = clientSocket("vcm-", 34567)
+    webappFD = serverSocket("0.0.0.0", 45678)
     
     ack_list = AckTracker()
 
     # Thread initiation
-    world_thread = threading.Thread(target=world_thread, args=(world_fd, ack_list))
-    ups_thread = threading.Thread(target=ups_thread, args=(ups_fd,))
-    webapp_thread = threading.Thread(target=webapp_thread, args=(webapp_fd,))
+    world_thread = threading.Thread(target=world_thread, args=(worldFD, upsFD, ack_list))
+    ups_thread = threading.Thread(target=ups_thread, args=(upsFD,worldFD, ack_list))
+    webapp_thread = threading.Thread(target=webapp_thread, args=(webappFD,worldFD, upsFD))
 
     # Start threads
     world_thread.start()
