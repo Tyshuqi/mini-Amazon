@@ -1,6 +1,6 @@
-from mysocket import *
 from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _EncodeVarint
+import socket
 
 # connect to world, ups
 def clientSocket(host, port):
@@ -21,7 +21,7 @@ def serverSocket(host, port):
     webapp_socket, addr = server_fd.accept()
     return webapp_socket
     
-    
+
 # convert message to string and send
 def sendRequest(fd, req_msg):
     req_string = req_msg.SerializeToString()

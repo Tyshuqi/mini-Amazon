@@ -1,5 +1,4 @@
-// port: 34567
-syntax = "proto2 ";
+syntax = "proto2";
 // Amazon -> UPS
 message ACommand {
 repeated AOrderTruck toOrder=1;

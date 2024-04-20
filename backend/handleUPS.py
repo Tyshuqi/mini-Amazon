@@ -3,7 +3,7 @@ from mysocket import *
 from server import ack_list
 from checkAck import *
 from psycopg2 import OperationalError
-import amazon_ups_pb2 as ups
+from protocal import amazon_ups_pb2 as ups
 from connectdb import get_db_connection
 
 

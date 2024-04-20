@@ -3,9 +3,9 @@ from mysocket import *
 from handleWorld import *
 from handleUPS import *
 from ack import *
-import web_backend_pb2 as web
-import world_amazon_pb2 as world
-import amazon_ups_pb2 as ups
+from protocal import web_backend_pb2 as web
+from protocal import world_amazon_pb2 as world
+from protocal import amazon_ups_pb2 as ups
 from connectdb import get_db_connection
 
 def world_thread(world_fd, ups_fd, ack_tracker):
@@ -89,7 +89,7 @@ def webapp_thread(webapp_fd, world_fd, ups_fd):
         print("Webapp server is running")
         
         while True:
-            res = receiveResponse(webapp_fd, web.Wcommands) 
+            res = receiveResponse(webapp_fd, web.WCommands) 
             
             for buy in res.Wbuy:
                 sendAck_web(webapp_fd, buy.seqnum)

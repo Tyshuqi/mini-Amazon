@@ -1,5 +1,6 @@
 import psycopg2
-import world_amazon_pb2 as world
+import sys
+from protocal import world_amazon_pb2 as world
 from mysocket import *
 from server import ack_list
 from checkAck import *
@@ -36,7 +37,7 @@ def connect(fd):
     
     
 def rec_connected(fd):
-    res = receiveResponse(fd, AConnected)
+    res = receiveResponse(fd,world.AConnected)
     if res.result == 'connected!':
         world_id = res.world_id
         return world_id
