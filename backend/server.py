@@ -7,8 +7,10 @@ from protocal import web_backend_pb2 as web
 from protocal import world_amazon_pb2 as world
 from protocal import amazon_ups_pb2 as ups
 from connectdb import get_db_connection
+from ack import ack_list
 
-def world_thread(world_fd, ups_fd, ack_tracker):
+def world_thread(world_fd, ups_fd):
+    print("World server is running")
     try:
         connect(world_fd)
         world_id = rec_connected(world_fd)
@@ -18,7 +20,7 @@ def world_thread(world_fd, ups_fd, ack_tracker):
             
             # remove ack from ack_list
             for ack in res.acks:
-                ack_tracker.remove_ack(ack)
+                ack_list.remove_ack(ack)
             
             for ready in res.ready:
                 sendAck_world(world_fd, ready.seqnum)
@@ -45,7 +47,7 @@ def world_thread(world_fd, ups_fd, ack_tracker):
         print(f"Error in world thread: {e}")
 
 
-def ups_thread(ups_fd, world_fd, ack_tracker):
+def ups_thread(ups_fd, world_fd):
     try:
         connect(ups_fd)
         print("Connected to UPS server")
@@ -55,7 +57,7 @@ def ups_thread(ups_fd, world_fd, ack_tracker):
             
             # remove ack from ack_list
             for ack in res.acks:
-                ack_tracker.remove_ack(ack)
+                ack_list.remove_ack(ack)
              
             for arrive in res.arrived:
                 sendAck_ups(ups_fd, arrive.seqnum)
@@ -125,16 +127,21 @@ def getOrderStatus(order_id):
 
 
 if __name__ == "__main__":
+    
     # Socket setup
     worldFD = clientSocket("vcm-38127.vm.duke.edu", 23456)
-    upsFD = clientSocket("vcm-", 34567)
-    webappFD = serverSocket("0.0.0.0", 45678)
+    print("worldFD:", worldFD)
+    #upsFD = clientSocket("vcm-40471.vm.duke.edu", 34567)
+    upsFD = 5
+    #webappFD = serverSocket("0.0.0.0", 45678)
+    webappFD = 6
+    print("webappFD:", webappFD)
     
-    ack_list = AckTracker()
+    #ack_list = AckTracker()
 
     # Thread initiation
-    world_thread = threading.Thread(target=world_thread, args=(worldFD, upsFD, ack_list))
-    ups_thread = threading.Thread(target=ups_thread, args=(upsFD,worldFD, ack_list))
+    world_thread = threading.Thread(target=world_thread, args=(worldFD, upsFD))
+    ups_thread = threading.Thread(target=ups_thread, args=(upsFD,worldFD))
     webapp_thread = threading.Thread(target=webapp_thread, args=(webappFD,worldFD, upsFD))
 
     # Start threads

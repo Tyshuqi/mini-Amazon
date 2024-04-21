@@ -2,10 +2,10 @@ import psycopg2
 
 def get_db_connection():
     # Database connection parameters
-    dbname = "database_name"
-    user = "username"
-    password = "password"
-    host = "localhost"
+    dbname = "postgres"
+    user = "ss1481"
+    password = "2108"
+    host = "db"
     port = "5432"  # Default PostgreSQL port
     
     try:

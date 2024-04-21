@@ -1,8 +1,8 @@
-from server import ack_list
+from ack import ack_list
 from mysocket import *
-import world_amazon_pb2 as world
-import web_backend_pb2 as web
-import amazon_ups_pb2 as ups
+from protocal import world_amazon_pb2 as world
+from protocal import web_backend_pb2 as web
+from protocal import amazon_ups_pb2 as ups
 import time
 
 

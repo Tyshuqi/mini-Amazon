@@ -2,13 +2,14 @@ import psycopg2
 import sys
 from protocal import world_amazon_pb2 as world
 from mysocket import *
-from server import ack_list
+from ack import ack_list
 from checkAck import *
 from psycopg2 import OperationalError
 from connectdb import get_db_connection
 
 
 def connect(fd):
+    print("!!!!!")
     conn = get_db_connection()
     if not conn:
         return  

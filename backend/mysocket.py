@@ -17,7 +17,7 @@ def serverSocket(host, port):
     # Bind to the port
     server_fd.bind((host, port))
     # Queue up to 5 requests
-    server_fd.listen(5)
+    server_fd.listen(10)
     webapp_socket, addr = server_fd.accept()
     return webapp_socket
     

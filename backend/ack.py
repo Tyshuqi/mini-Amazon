@@ -26,3 +26,6 @@ class AckTracker:
     def __str__(self):
         with self.lock:
             return str(self.pending_acks)
+
+# Initialize AckTracker instance
+ack_list = AckTracker()
