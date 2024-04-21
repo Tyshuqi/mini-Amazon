@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
+
 
 class Warehouse(models.Model):
     x = models.IntegerField()
@@ -29,19 +31,36 @@ class Order(models.Model):
         ('delivering', 'Delivering'), 
         ('delivered', 'Delivered')
     ], default='pending')
-    des_x = models.IntegerField()
-    des_y = models.IntegerField()
-    upsUsername = models.CharField(max_length=100)  # Added field for UPS Username
+    des_x = models.IntegerField(null=True, blank=True)
+    des_y = models.IntegerField(null=True, blank=True)
+    upsUsername = models.CharField(max_length=100, null=True, blank=True) 
 
     def __str__(self):
         return f"{self.quantity} x {self.product.description} for Order {self.order.id} (UPS Username: {self.upsUsername})"
     
+class CartOrder(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_open = models.BooleanField(default=True)
+    des_x = models.IntegerField(null=True, blank=True)
+    des_y = models.IntegerField(null=True, blank=True)
+    ups_name = models.CharField(max_length=100, null=True, blank=True) 
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
+    order_id = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items', null=True, blank=True)
+    cart_order = models.ForeignKey(CartOrder, on_delete=models.CASCADE , null=True, related_name='cart_items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.IntegerField()
+    quantity = models.IntegerField(default=1)
+    status = models.CharField(max_length=20, choices=[
+        ('enough', 'Enough'), 
+        ('short', 'Short')
+    ], default='enough')
+    
 
     def __str__(self):
         return f"{self.quantity} x {self.product.description} for Order {self.order.id}"
+
+
+
+
+

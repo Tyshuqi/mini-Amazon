@@ -24,8 +24,12 @@ urlpatterns = [
     
     path('update-user-info/', update_user_info, name='update_user_info'),
     # path('update-driver-info/', update_driver_info, name='update_driver_info'),
-    path('shopping/', shopping, name='shopping'),
-    path('myorder/', myorder, name='myorder'),
+    path('shopping/', shopping_view, name='shopping'), 
+    path('submit-cart/', submit_cart, name='submit_cart'),
+    path('view_-art-order/', view_cart_order, name='view_cart_order'),
+    path('myorder/', myorder, name='myorder'), 
+    path('order-confirmation/', order_confirmation, name='order_confirmation'), 
+    
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

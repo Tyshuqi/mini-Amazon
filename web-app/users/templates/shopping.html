@@ -1,31 +1,30 @@
 
-
 {% extends 'base.html' %}
-
 
 {% block content %}
 <div class="navbar">
   <a href="{% url 'user_home' %}">User Home</a>
   <a href="{% url 'home' %}">Log out</a>
 </div>
-<div class="left-content">
-  {% for product in products %}
-  <div class="product">
-    
-    <!-- Display the image -->
-    {% if product.image %}
-      <img src="{{ product.image.url }}" alt="{{ product.description }}">
-    {% else %}
-      <p>No image available</p>
-    {% endif %}
+<form method="post" action="{% url 'submit_cart' %}">
+  {% csrf_token %}
+  <div class="left-content">
+    {% for product in products %}
+    <div class="product">
+      <!-- Display the image -->
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.description }}">
+      {% else %}
+        <p>No image available</p>
+      {% endif %}
 
       <h2>{{ product.description }}</h2>
       <h3>Price: ${{ product.price }}</h3>
-    
-      <button class="buy-button" type="button">Buy</button>
-
-    
+      <label for="quantity_{{ product.id }}">Quantity:</label>
+      <input type="number" id="quantity_{{ product.id }}" name="quantity_{{ product.id }}" min="0" value="0">
+    </div>
+    {% endfor %}
   </div>
-  {% endfor %}
-</div>
+  <button class="buy-button" type="submit">Buy</button>
+</form>
 {% endblock %}

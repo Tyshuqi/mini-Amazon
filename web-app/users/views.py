@@ -8,8 +8,19 @@ from django.contrib import messages
 from .models import *
 import os
 from django.core.files import File
+from django.shortcuts import get_object_or_404
+from mysocket.py import *
+from protocal import web_backend_pb2 as web
 
 
+back_fd = clientSocket("vcm-38127.vm.duke.edu", 45678)
+print("back_fd: ", back_fd)
+
+while True:
+    res = receiveResponse(back_fd, web.BResponse)        
+    # remove ack from ack_list
+    for ack in res.acks:
+    ack_list.remove_ack(ack)
 
 
 def home(request):
@@ -30,17 +41,6 @@ def initial_data():
     # Create a new product linked to the warehouse
     product1 = Product(description="Basketball", quantity=200, warehouse=warehouse1, price=25)
     product2 = Product(description="Candy", quantity=100, warehouse=warehouse2, price=3)
-    # from django.conf import settings
-    
-    # image_path = os.path.join('/code','users', 'product_image', 'basketball.jpeg')
-
-    # # Check if the file exists before proceeding
-    # if not os.path.exists(image_path):
-    #     raise FileNotFoundError(f"No such file or directory: '{image_path}'")
-    
-    # # Attach the image to the Product instance
-    # with open(image_path, 'rb') as img:
-    #     product.image.save('basketball.jpeg', File(img), save=True) 
     
     product1.save()
     product2.save()
@@ -92,14 +92,111 @@ def update_user_info(request):
 
 
 
-@login_required
-def shopping(request):    
-    products = Product.objects.all()
-    print(products)  
-    wh = Warehouse.objects.all()
-    print(wh)
-    return render(request, 'shopping.html', {'products': products})
 
 @login_required
 def myorder(request):    
     return render(request, 'myorder.html')
+
+@login_required
+def shopping_view(request):
+    return render(request, 'shopping.html')
+
+
+@login_required
+def submit_cart(request):
+    #CartOrder.objects.all().delete()
+    print(CartOrder.objects.all())
+    if request.method == 'POST':
+        CartOrder.objects.filter(user=request.user, is_open=True).update(is_open=False)
+        # Get or create a new cart order
+        cart_order, created = CartOrder.objects.get_or_create(user=request.user, is_open=True)
+        
+        for key in request.POST:
+            if key.startswith('quantity_'):
+                product_id = key.split('_')[1]
+                quantity = int(request.POST[key])
+                if quantity > 0:
+                    product = Product.objects.get(id=product_id)
+                    OrderItem.objects.create(cart_order=cart_order, product=product, quantity=quantity)
+
+        # if  no longer allow additions
+        #cart_order.is_open = False
+        cart_order.save()
+
+        return redirect('view_cart_order') 
+
+    return render(request, 'shopping.html', {'products': Product.objects.all()})
+
+@login_required
+def view_cart_order(request):
+    print(CartOrder.objects.all())
+    cart_order = get_object_or_404(CartOrder, user=request.user, is_open=True)
+    if request.method == 'POST':
+        form = DestinationForm(request.POST, instance=cart_order)
+        if form.is_valid():
+            form.save()
+            return redirect('order_confirmation')  
+    else:
+        form = DestinationForm(instance=cart_order)
+    
+    order_items = OrderItem.objects.filter(cart_order=cart_order)
+    return render(request, 'cart_order.html', {
+        'order_items': order_items,
+        'form': form
+    })
+
+@login_required
+def order_confirmation(request):
+   
+    cart_order = get_object_or_404(CartOrder, user=request.user, is_open=True)
+    order_items = OrderItem.objects.filter(cart_order=cart_order)
+
+    
+
+    warehouse_groups = defaultdict(list)
+    for item in order_items:
+        if item.quantity <= item.product.quantity:
+            item.status = 'enough'
+            warehouse_groups[item.product.warehouse_id].append(item)
+            item.save()
+        else:
+            item.status = 'short'
+            item.save()
+            reqq_msg = web.WCommands()
+            more_msg = reqq_msg.askmore.add()
+            more_msg.productid = item.product.id
+            more_msg.count = item.quantity - item.product.quantity
+            seqNum = ack_list.add_request()  
+            more_msg.seqnum = seqNum
+
+            checkAndSendReq(back_fd, reqq_msg, seqNum)
+        
+
+    # Create an Order for each group of items from the same warehouse where all items are 'enough'
+    with transaction.atomic():  # Use a transaction to ensure data integrity
+        for warehouse_id, items in warehouse_groups.items():
+            if all(item.status == 'enough' for item in items):
+                new_order = Order(
+                    status='pending',
+                    des_x=cart_order.des_x,
+                    des_y=cart_order.des_y,
+                    upsUsername=cart_order.ups_name
+                )
+                new_order.save()
+                for item in items:
+                    item.order_id = new_order
+                    item.save()
+
+                req_msg = web.WCommands()
+                buy_msg = req_msg.buy.add()
+                buy_msg.orderid = new_order.id
+                seqNum = ack_list.add_request()  
+                buy_msg.seqnum = seqNum
+
+                checkAndSendReq(back_fd, req_msg, seqNum)
+
+    
+    return render(request, 'order_confirmation.html', {
+        'order_items': order_items,
+        'cart_order': cart_order
+    })
