@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Order Confirmation</h2>
+<p>Thank you for your order. Here are the details:</p>
+<ul>
+    <li>Destination: ({{ cart_order.des_x }}, {{ cart_order.des_y }})
+    <li>UPS Name: {{ cart_order.ups_name }}
+    {% for item in order_items %}
+    <li>{{ item.product.description }}: {{ item.quantity }} units at ${{ item.product.price }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

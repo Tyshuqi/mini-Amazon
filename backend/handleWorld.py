@@ -9,7 +9,7 @@ from connectdb import get_db_connection
 
 
 def connect(fd):
-    print("!!!!!")
+    print("Begin to connect to world...")
     conn = get_db_connection()
     if not conn:
         return  
@@ -24,14 +24,16 @@ def connect(fd):
     connect_msg = world.AConnect()
     connect_msg.isAmazon = True
     
+    
     for warehouse in all_warehouse:
         new_wh = connect_msg.initwh.add()
         new_wh.id = warehouse[0]
         new_wh.x = warehouse[1]
         new_wh.y = warehouse[2]
-    # send Aconnect to world     
+    #send Aconnect to world     
     sendRequest(fd, connect_msg)
-        
+    
+    print("Has sent AConnect to world!")  
     cursor.close()
     conn.close()
     
@@ -40,14 +42,12 @@ def connect(fd):
 def rec_connected(fd):
     res = receiveResponse(fd,world.AConnected)
     if res.result == 'connected!':
-        world_id = res.world_id
+        world_id = res.worldid
         return world_id
     else:
         print(f"Failed to connect: {res.result}")
         sys.exit(1)  
         
-        
-    
 
 def toPack(fd, orderID):
     conn = get_db_connection()

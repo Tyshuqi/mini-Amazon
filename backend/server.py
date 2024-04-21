@@ -49,7 +49,7 @@ def world_thread(world_fd, ups_fd):
 
 def ups_thread(ups_fd, world_fd):
     try:
-        connect(ups_fd)
+        # connect(ups_fd)
         print("Connected to UPS server")
         
         while True:
@@ -100,8 +100,8 @@ def webapp_thread(webapp_fd, world_fd, ups_fd):
                 toOrderTruck(ups_fd, buy.orderid)
                 
                 
-            for cancel in res.cancel:
-                pass
+            # for cancel in res.cancel:
+            #     pass
                 
             for askmore in res.Waskmore:
                 sendAck_web(webapp_fd, askmore.seqnum)
@@ -127,13 +127,14 @@ def getOrderStatus(order_id):
 
 
 if __name__ == "__main__":
-    
+    print("Amazon Server is running")
     # Socket setup
-    worldFD = clientSocket("vcm-38127.vm.duke.edu", 23456)
+    #worldFD = clientSocket('vcm-38127.vm.duke.edu', 23456)
+    worldFD = clientSocket('127.0.0.1', 23456)
     print("worldFD:", worldFD)
     #upsFD = clientSocket("vcm-40471.vm.duke.edu", 34567)
     upsFD = 5
-    #webappFD = serverSocket("0.0.0.0", 45678)
+    #webappFD = serverSocket("vcm-38127.vm.duke.edu", 45678)
     webappFD = 6
     print("webappFD:", webappFD)
     

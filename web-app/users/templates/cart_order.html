@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Review Your Cart</h2>
+<ul>
+    {% for item in order_items %}
+    <li>{{ item.product.description }}: {{ item.quantity }} units at ${{ item.product.price }}</li>
+    {% endfor %}
+</ul>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit Order</button>
+</form>
+{% endblock %}
