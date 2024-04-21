@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <div class="navbar">
+    <a href="{% url 'user_info' %}">User Info</a>
+    <a href="{% url 'home' %}">Log out</a>
+  </div>
+  <div class="centered-content">
+    <h1>User Home</h1>
+    <div>
+      
+      <a href="{% url 'shopping' %}" class = "link">Start Shopping</a>
+      
+      <br>
+      <a href="{% url 'myorder' %}" class = "link">My Order</a>
+      
+      <br>
+      
+    </div>
+  </div>
+{% endblock %}

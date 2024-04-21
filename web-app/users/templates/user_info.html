@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="navbar">
+  <a href="{% url 'user_home' %}">User Home</a>
+  <a href="{% url 'home' %}">Log out</a>
+</div>
+  <h2>User Info</h2>
+  <p>Username: {{ user.username }}</p>
+  <p>Email: {{ user.email }}</p>
+  <a href="{% url 'update_user_info' %}" class = "link2">Update Info</a>
+
+
+{% endblock %}

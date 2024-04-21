@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="centered-content">
+    <header>
+        <h1>Welcome to Mini Amazon</h1>
+    </header>
+
+    <main>
+        <h2>Enjoy your shopping!</h2>
+        <a href="{% url 'login' %}" class = "link">Login</a>
+        <span style="display: inline-block; width: 50px;"></span> <!-- Horizontal space -->
+        <a href="{% url 'signup' %}" class = "link">Sign Up</a>
+    </main>
+</div>
+{% endblock %}
+
+
+
