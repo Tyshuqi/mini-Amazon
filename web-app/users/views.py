@@ -13,7 +13,7 @@ from django.core.files import File
 
 
 def home(request):
-    initial_data()
+    
     return render(request, 'index.html')
 
 
