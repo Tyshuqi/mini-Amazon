@@ -13,6 +13,8 @@ services:
       - POSTGRES_PASSWORD=2108  
       volumes:
             - data-volume:/var/lib/postgresql/data
+      
+
   web-init:
       build: ./web-app
       user: root
@@ -22,6 +24,8 @@ services:
         
       depends_on:
         - db
+      
+
   web:
       build: ./web-app
       user: nobody
@@ -33,13 +37,30 @@ services:
         - "8000"
       depends_on:
         - web-init
+      
+
+  backend:
+      build: ./backend
+      volumes:
+        - "./backend:/backend"
+      tty: true
+      depends_on:
+        - db
+      ports:
+        - "8090:8090"
+      command: bash -c "python3 server.py"
+      network_mode: "host"
+      
+
   nginx:
-     image: nginx:latest
-     ports:
-       - "8000:8000"
-     volumes:
-       - ./nginx/config:/etc/nginx/conf.d
-     depends_on:
-       - web
+      image: nginx:latest
+      ports:
+        - "8000:8000"
+      volumes:
+        - ./nginx/config:/etc/nginx/conf.d
+      depends_on:
+        - web
+      
+
 volumes:
    data-volume:
