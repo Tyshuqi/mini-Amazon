@@ -10,7 +10,7 @@ def clientSocket(host, port):
     client_fd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # connect
     client_fd.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    client_fd.bind(('127.0.0.1', 8090))
+    #client_fd.bind(('127.0.0.1', 8090))
     client_fd.connect((host, port))
     print("client fd is:", client_fd)
     return client_fd
@@ -20,7 +20,7 @@ def serverSocket(host, port):
     # Create a socket object
     server_fd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # Bind to the port
-    server_fd.bind((host, port))
+    server_fd.bind(('0.0.0.0', port))
     # Queue up to 5 requests
     server_fd.listen(10)
     webapp_socket, addr = server_fd.accept()

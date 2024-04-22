@@ -9,18 +9,18 @@ from .models import *
 import os
 from django.core.files import File
 from django.shortcuts import get_object_or_404
-from mysocket.py import *
-from protocal import web_backend_pb2 as web
+from .mysocket import *
+from . import web_backend_pb2 as web
 
 
-back_fd = clientSocket("vcm-38127.vm.duke.edu", 45678)
+back_fd = clientSocket("vcm-38181.vm.duke.edu", 45678)
 print("back_fd: ", back_fd)
 
 while True:
     res = receiveResponse(back_fd, web.BResponse)        
     # remove ack from ack_list
     for ack in res.acks:
-    ack_list.remove_ack(ack)
+        ack_list.remove_ack(ack)
 
 
 def home(request):

@@ -15,20 +15,12 @@ services:
             - data-volume:/var/lib/postgresql/data
       
 
-  web-init:
-      build: ./web-app
-      user: root
-      command: /code/initserver.sh
-      volumes:
-        - ./web-app:/code
-        
-      depends_on:
-        - db
       
 
   web:
       build: ./web-app
-      user: nobody
+      image: erss-project-xh135-ss1481_web:latest  
+      user: root
       command: /code/runserver.sh
       volumes:
         - ./web-app:/code
@@ -36,7 +28,8 @@ services:
       expose:
         - "8000"
       depends_on:
-        - web-init
+        - db
+
       
 
   backend:
@@ -47,9 +40,10 @@ services:
       depends_on:
         - db
       ports:
-        - "8090:8090"
+        - "34567:34567"
+        - "45678:45678"
       command: bash -c "python3 server.py"
-      network_mode: "host"
+
       
 
   nginx:
@@ -63,4 +57,4 @@ services:
       
 
 volumes:
-   data-volume:
+   data-volume: {}

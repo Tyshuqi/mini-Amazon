@@ -16,7 +16,7 @@ def serverSocket(host, port):
     # Create a socket object
     server_fd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # Bind to the port
-    server_fd.bind((host, port))
+    server_fd.bind(('0.0.0.0', port))
     # Queue up to 5 requests
     server_fd.listen(10)
     webapp_socket, addr = server_fd.accept()

@@ -130,12 +130,12 @@ if __name__ == "__main__":
     print("Amazon Server is running")
     # Socket setup
     #worldFD = clientSocket('vcm-38127.vm.duke.edu', 23456)
-    worldFD = clientSocket('127.0.0.1', 23456)
+    worldFD = clientSocket('vcm-38181.vm.duke.edu', 23456)
     print("worldFD:", worldFD)
     #upsFD = clientSocket("vcm-40471.vm.duke.edu", 34567)
     upsFD = 5
-    #webappFD = serverSocket("vcm-38127.vm.duke.edu", 45678)
-    webappFD = 6
+    webappFD = serverSocket('vcm-38181.vm.duke.edu', 45678)
+    #webappFD = 6
     print("webappFD:", webappFD)
     
     #ack_list = AckTracker()
