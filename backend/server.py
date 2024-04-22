@@ -10,13 +10,14 @@ from connectdb import get_db_connection
 from ack import ack_list
 
 def world_thread(world_fd, ups_fd):
-    print("World server is running")
+    print("World thread is running")
     try:
         connect(world_fd)
         world_id = rec_connected(world_fd)
-        print(f"Connected to World with ID: {world_id}")
+        print(f"Recieve World ID: {world_id}")
         while True:
             res = receiveResponse(world_fd, world.AResponses)
+            print("Recved from world!")
             
             # remove ack from ack_list
             for ack in res.acks:
@@ -49,8 +50,7 @@ def world_thread(world_fd, ups_fd):
 
 def ups_thread(ups_fd, world_fd):
     try:
-        # connect(ups_fd)
-        print("Connected to UPS server")
+        print("ups thread is running")
         
         while True:
             res = receiveResponse(ups_fd, ups.UCommand)
@@ -88,13 +88,15 @@ def ups_thread(ups_fd, world_fd):
 
 def webapp_thread(webapp_fd, world_fd, ups_fd):
     try:
-        print("Webapp server is running")
+        print("Webapp thread is running")
         
         while True:
             res = receiveResponse(webapp_fd, web.WCommands) 
+            print("Recved from webapp!")
             
-            for buy in res.Wbuy:
-                sendAck_web(webapp_fd, buy.seqnum)
+            for buy in res.buy:
+                print("Handling webapp Wbuy!")
+                #sendAck_web(webapp_fd, buy.seqnum)
                 toPack(world_fd, buy.orderid)
                 # TODO 2: request truck from ups, has finished this!
                 toOrderTruck(ups_fd, buy.orderid)
@@ -103,8 +105,9 @@ def webapp_thread(webapp_fd, world_fd, ups_fd):
             # for cancel in res.cancel:
             #     pass
                 
-            for askmore in res.Waskmore:
-                sendAck_web(webapp_fd, askmore.seqnum)
+            for askmore in res.askmore:
+                print("Handling webapp Waskmore!")
+                #sendAck_web(webapp_fd, askmore.seqnum)
                 # TODO 1: has finished this
                 toPurchaseMore(world_fd, askmore.productid, askmore.amount)
         
@@ -131,12 +134,15 @@ if __name__ == "__main__":
     # Socket setup
     #worldFD = clientSocket('vcm-38127.vm.duke.edu', 23456)
     worldFD = clientSocket('vcm-38181.vm.duke.edu', 23456)
-    print("worldFD:", worldFD)
+    print("Success connect to worldFD:", worldFD)
     #upsFD = clientSocket("vcm-40471.vm.duke.edu", 34567)
     upsFD = 5
-    webappFD = serverSocket('vcm-38181.vm.duke.edu', 45678)
+    server_fd = serverSocket('vcm-38181.vm.duke.edu', 45678)
+    webappFD, addr = server_fd.accept()
+    webappFD, addr = server_fd.accept()
+    webappFD, addr = server_fd.accept()
+    print("Success connect to webappFD:", webappFD)
     #webappFD = 6
-    print("webappFD:", webappFD)
     
     #ack_list = AckTracker()
 

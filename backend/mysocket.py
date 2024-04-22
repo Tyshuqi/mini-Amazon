@@ -15,7 +15,7 @@ def clientSocket(host, port):
     print("client fd is:", client_fd)
     return client_fd
 
-# accept webapp client
+# listen webapp client
 def serverSocket(host, port):
     # Create a socket object
     server_fd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -23,8 +23,8 @@ def serverSocket(host, port):
     server_fd.bind(('0.0.0.0', port))
     # Queue up to 5 requests
     server_fd.listen(10)
-    webapp_socket, addr = server_fd.accept()
-    return webapp_socket
+    # webapp_socket, addr = server_fd.accept()
+    return server_fd
     
 
 # convert message to string and send

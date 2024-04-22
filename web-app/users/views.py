@@ -11,16 +11,26 @@ from django.core.files import File
 from django.shortcuts import get_object_or_404
 from .mysocket import *
 from . import web_backend_pb2 as web
+import time
+from collections import defaultdict
+from django.db import transaction
 
 
-back_fd = clientSocket("vcm-38181.vm.duke.edu", 45678)
-print("back_fd: ", back_fd)
+
 
 while True:
-    res = receiveResponse(back_fd, web.BResponse)        
-    # remove ack from ack_list
-    for ack in res.acks:
-        ack_list.remove_ack(ack)
+    try:
+        print("Try to connect to backend...")
+        back_fd = clientSocket("vcm-38181.vm.duke.edu", 45678)
+        print("Success connected to backend! back_fd: ", back_fd)
+        break
+    except:
+        time.sleep(0.5)
+        continue
+#     res = receiveResponse(back_fd, web.BResponse)        
+#     # remove ack from ack_list
+#     for ack in res.acks:
+#         ack_list.remove_ack(ack)
 
 
 def home(request):
@@ -105,7 +115,7 @@ def shopping_view(request):
 @login_required
 def submit_cart(request):
     #CartOrder.objects.all().delete()
-    print(CartOrder.objects.all())
+    #print(CartOrder.objects.all())
     if request.method == 'POST':
         CartOrder.objects.filter(user=request.user, is_open=True).update(is_open=False)
         # Get or create a new cart order
@@ -129,7 +139,7 @@ def submit_cart(request):
 
 @login_required
 def view_cart_order(request):
-    print(CartOrder.objects.all())
+    #print(CartOrder.objects.all())
     cart_order = get_object_or_404(CartOrder, user=request.user, is_open=True)
     if request.method == 'POST':
         form = DestinationForm(request.POST, instance=cart_order)
@@ -169,7 +179,8 @@ def order_confirmation(request):
             seqNum = ack_list.add_request()  
             more_msg.seqnum = seqNum
 
-            checkAndSendReq(back_fd, reqq_msg, seqNum)
+            sendRequest(back_fd, reqq_msg)
+            print("Send askmore request!")
         
 
     # Create an Order for each group of items from the same warehouse where all items are 'enough'
@@ -193,7 +204,8 @@ def order_confirmation(request):
                 seqNum = ack_list.add_request()  
                 buy_msg.seqnum = seqNum
 
-                checkAndSendReq(back_fd, req_msg, seqNum)
+                sendRequest(back_fd, req_msg)
+                print("Send buy request!")
 
     
     return render(request, 'order_confirmation.html', {

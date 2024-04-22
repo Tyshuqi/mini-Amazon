@@ -26,7 +26,7 @@ urlpatterns = [
     # path('update-driver-info/', update_driver_info, name='update_driver_info'),
     path('shopping/', shopping_view, name='shopping'), 
     path('submit-cart/', submit_cart, name='submit_cart'),
-    path('view_-art-order/', view_cart_order, name='view_cart_order'),
+    path('view-cart-order/', view_cart_order, name='view_cart_order'),
     path('myorder/', myorder, name='myorder'), 
     path('order-confirmation/', order_confirmation, name='order_confirmation'), 
     

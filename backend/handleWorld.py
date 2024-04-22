@@ -15,8 +15,11 @@ def connect(fd):
         return  
     # Create a cursor object
     cursor = conn.cursor()
+    cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")
+    table_list = [row[0] for row in cursor.fetchall()]
+    print(table_list)
     # select warehouse info
-    cursor.execute('SELECT id, x, y  FROM Warehouse')
+    cursor.execute('SELECT id, x, y  FROM users_warehouse')
     # Fetch data
     all_warehouse = cursor.fetchall()
     
@@ -28,6 +31,7 @@ def connect(fd):
     for warehouse in all_warehouse:
         new_wh = connect_msg.initwh.add()
         new_wh.id = warehouse[0]
+        print("wh_id: ", new_wh.id)
         new_wh.x = warehouse[1]
         new_wh.y = warehouse[2]
     #send Aconnect to world     
