@@ -94,7 +94,7 @@ def toPack(fd, orderID):
         checkAndSendReq(fd, req_msg, seqNum)
 
         # Update order status to 'packing'
-        update_query = "UPDATE Order SET status = %s WHERE id = %s"
+        update_query = 'UPDATE "Order" SET status = %s WHERE id = %s'
         cursor.execute(update_query, ('packing', orderID))
         conn.commit()
 
@@ -144,7 +144,7 @@ def packed(fd, orderid):
                 """, (ordered_quantity, product_id))
             
             cursor.execute("""
-            UPDATE Order SET status = 'packed'
+            UPDATE "Order" SET status = 'packed'
             WHERE id = %s;
             """, (orderid,))
             conn.commit()
@@ -273,7 +273,7 @@ def toLoad(fd, orderID, truckID):
             checkAndSendReq(fd, req_msg, seqNum)
             
             # Update order status to 'loading'
-            update_query = "UPDATE Order SET status = %s WHERE id = %s"
+            update_query = 'UPDATE "Order" SET status = %s WHERE id = %s'
             cursor.execute(update_query, ('loading', orderID))
             conn.commit()
         else:
@@ -296,7 +296,7 @@ def loaded(fd, orderID):
     try:
         # Update order status to 'loaded'
         cursor.execute("""
-        UPDATE Order
+        UPDATE "Order"
         SET status = %s
         WHERE id = %s;
         """, ('loaded', orderID))

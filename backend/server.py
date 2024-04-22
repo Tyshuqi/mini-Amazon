@@ -2,12 +2,16 @@ import threading
 from mysocket import *
 from handleWorld import *
 from handleUPS import *
+
 from ack import *
 from protocal import web_backend_pb2 as web
 from protocal import world_amazon_pb2 as world
 from protocal import amazon_ups_pb2 as ups
 from connectdb import get_db_connection
 from ack import ack_list
+from handleWeb import *
+
+
 
 def world_thread(world_fd, ups_fd):
     print("World thread is running")
@@ -51,14 +55,31 @@ def world_thread(world_fd, ups_fd):
 def ups_thread(ups_fd, world_fd):
     try:
         print("ups thread is running")
-        
+
         while True:
             res = receiveResponse(ups_fd, ups.UCommand)
             
             # remove ack from ack_list
             for ack in res.acks:
                 ack_list.remove_ack(ack)
-             
+                
+            # 4.22
+            for check_User in res.checkUser:
+                sendAck_ups(ups_fd, check_user.seqnum)
+                # uodate order status and upsid, check upsid!=-1 continue, else change status
+                ups_id = check_User.upsUserID
+                if ups_id != -1:
+                    # update ups id
+                    updateUpsID(ups_id, check_User.orderid)
+                    
+                    toPack(world_fd, buy.orderid)
+                    # TODO 2: request truck from ups, has finished this!
+                    toOrderTruck(ups_fd, buy.orderid)
+                else:
+                    # update order status to "error"
+                    updateOrderStatus(check_User.orderid, "error")
+                    
+                             
             for arrive in res.arrived:
                 sendAck_ups(ups_fd, arrive.seqnum)
                 # TODO 4: wait for order.status== packed,  start load, send to world
@@ -94,16 +115,19 @@ def webapp_thread(webapp_fd, world_fd, ups_fd):
             res = receiveResponse(webapp_fd, web.WCommands) 
             print("Recved from webapp!")
             
-            for buy in res.buy:
-                print("Handling webapp Wbuy!")
-                #sendAck_web(webapp_fd, buy.seqnum)
-                toPack(world_fd, buy.orderid)
-                # TODO 2: request truck from ups, has finished this!
-                toOrderTruck(ups_fd, buy.orderid)
-                
-                
-            # for cancel in res.cancel:
-            #     pass
+            for buy in res.Wbuy:
+                sendAck_web(webapp_fd, buy.seqnum)
+                # 4.22 check upsname
+                Name = checkName(buy.orderid)
+                # None: pack directly, else send to ups
+                if Name == None:
+                    toPack(world_fd, buy.orderid)
+                    # TODO 2: request truck from ups, has finished this!
+                    toOrderTruck(ups_fd, buy.orderid)
+                else:
+                    #send to ups
+                    sendName(ups_fd, Name) 
+
                 
             for askmore in res.askmore:
                 print("Handling webapp Waskmore!")
@@ -113,19 +137,6 @@ def webapp_thread(webapp_fd, world_fd, ups_fd):
         
     except Exception as e:
         print(f"Error in webapp thread: {e}")
-
-
-def getOrderStatus(order_id):
-    conn = get_db_connection()
-    if conn is None:
-        print("Database connection failed")
-        return None
-    
-    with conn:
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT status FROM Order WHERE id = %s", (order_id,))
-            result = cursor.fetchone()
-            return result[0] if result else None
 
 
 

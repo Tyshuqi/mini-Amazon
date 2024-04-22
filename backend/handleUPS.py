@@ -69,7 +69,7 @@ def startDelivery(fd, orderID):
     
     try:
         # Update the order status to 'delivering' before sending the delivery command
-        update_query = "UPDATE Order SET status = %s WHERE id = %s"
+        update_query = 'UPDATE "Order" SET status = %s WHERE id = %s'
         cursor.execute(update_query, ('delivering', orderID))
         conn.commit()
 
@@ -104,7 +104,7 @@ def delivered(fd, orderID):
     
     try:
         # Update the order status to 'delivered'
-        update_query = "UPDATE Order SET status = %s WHERE id = %s"
+        update_query = 'UPDATE "Order" SET status = %s WHERE id = %s'
         cursor.execute(update_query, ('delivered', orderID))
         conn.commit()
         print(f"Order {orderID} has been marked as delivered.")
@@ -118,3 +118,20 @@ def delivered(fd, orderID):
         # Clean up by closing cursor and connection
         cursor.close()
         conn.close()
+  
+        
+        
+# 4.22
+def sendName(fd, Name):    
+    req_msg = ups.ACommand()
+    checkName_msg = req_msg.ACheckUsername.add()
+    checkName_msg.upsUsername = Name
+    # Generate a seq_num
+    seqNum = ack_list.add_request()
+    checkName_msg.seqnum = seqNum
+    # Send the UPS username to UPS
+    checkAndSendReq(fd, req_msg, seqNum)
+   
+        
+
+
