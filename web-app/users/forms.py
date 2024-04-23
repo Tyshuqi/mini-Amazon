@@ -26,4 +26,6 @@ class DestinationForm(forms.ModelForm):
         fields = ['des_x', 'des_y', 'ups_name']
         
         
-        
+class UpdateOrderForm(forms.Form):
+    order_id = forms.IntegerField(widget=forms.HiddenInput())
+    upsUsername = forms.CharField(label='Update UPS Username', max_length=100)      

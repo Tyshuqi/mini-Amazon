@@ -190,6 +190,7 @@ def order_confirmation(request):
         for warehouse_id, items in warehouse_groups.items():
             if all(item.status == 'enough' for item in items):
                 new_order = Order(
+                    user = request.user,
                     status='pending',
                     des_x=cart_order.des_x,
                     des_y=cart_order.des_y,
@@ -218,3 +219,22 @@ def order_confirmation(request):
         'enough_items': enough_items,
         'cart_order': cart_order
     })
+
+
+def my_order_view(request):
+    orders = Order.objects.filter(user=request.user)  
+
+    
+    if request.method == 'POST':
+        form = UpdateOrderForm(request.POST)
+        if form.is_valid():
+            order_id = form.cleaned_data['order_id']
+            upsUsername = form.cleaned_data['upsUsername']
+            order = Order.objects.get(id=order_id)
+            order.upsUsername = upsUsername
+            order.save()
+            return redirect('home') 
+    else:
+        form = UpdateOrderForm()
+
+    return render(request, 'myorder.html', {'orders': orders, 'form': form})

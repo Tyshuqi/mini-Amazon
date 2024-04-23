@@ -1,23 +1,31 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="navbar">
+  <a href="{% url 'user_info' %}">User Info</a>
+  <a href="{% url 'home' %}">Log out</a>
+</div>
 
-  <div class="navbar">
-    <a href="{% url 'user_info' %}">User Info</a>
-    <a href="{% url 'home' %}">Log out</a>
+<div class="centered-content">
+  <h1>My Orders</h1>
+  {% for order in orders %}
+  <div>
+    <p>Status: {{ order.status }}</p>
+    <p>Destination X: {{ order.des_x }}</p>
+    <p>Destination Y: {{ order.des_y }}</p>
+    <p>UPS Username: {{ order.upsUsername }}</p>
+    <p>UPS User ID: {{ order.upsUserID }}</p>
+
+    {% if order.status == 'error' %}
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="hidden" name="order_id" value="{{ order.id }}">
+      <button type="submit">Update UPS Username</button>
+    </form>
+    {% endif %}
   </div>
-  <div class="centered-content">
-    {% for product in products %}
-    <div>
-        <h2>{{ product.description }}</h2>
-        <p>Quantity: {{ product.quantity }}</p>
-        <!-- Display the image -->
-        {% if product.image %}
-            <img src="{{ product.image.url }}" alt="{{ product.description }}">
-        {% else %}
-            <p>No image available</p>
-        {% endif %}
-    </div>
-{% endfor %}
-  </div>
+  <hr>
+  {% endfor %}
+</div>
 {% endblock %}

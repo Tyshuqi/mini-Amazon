@@ -22,6 +22,7 @@ class Product(models.Model):
         return self.description
 
 class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders', null=True)
     status = models.CharField(max_length=20, choices=[
         ('pending', 'Pending'),
         ('error', 'Error'), 
@@ -36,6 +37,7 @@ class Order(models.Model):
     des_y = models.IntegerField(null=True, blank=True)
     upsUsername = models.CharField(max_length=100, null=True, blank=True)
     upsUserID =  models.IntegerField(null=True, blank=True)
+
 
     def __str__(self):
        

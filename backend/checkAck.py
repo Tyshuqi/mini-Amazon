@@ -8,26 +8,30 @@ import time
 
 # send request until receive ack
 def checkAndSendReq(fd, req_msg, seqNum ):
+    print("seqNum: ", seqNum)
     while True:
         # check ack in seq_list: resend
+        print("pending set: ",ack_list.pending_acks)
         if seqNum in ack_list.pending_acks:
+            print("still in list" )
             sendRequest(fd, req_msg)
             time.sleep(2)  # waits for 2 seconds
         # otherwise break
         else:
+            print("break")
             break
         
 def sendAck_world(fd, seqNum):
-    ack_msg = world.ACommands()
-    ack_msg.acks = seqNum
-    sendRequest(fd, ack_msg)
+    req_msg = world.ACommands()
+    req_msg.acks.append(seqNum)
+    sendRequest(fd, req_msg)
     
 def sendAck_web(fd, seqNum):
-    ack_msg = web.BResponse()
-    ack_msg.acks = seqNum
-    sendRequest(fd, ack_msg)
+    req_msg = web.BResponse()
+    req_msg.acks.append(seqNum)
+    sendRequest(fd, req_msg)
     
 def sendAck_ups(fd, seqNum):
-    ack_msg = ups.ACommand()
-    ack_msg.acks = seqNum
-    sendRequest(fd, ack_msg)
+    req_msg = ups.ACommand()
+    req_msg.acks.append(seqNum)
+    sendRequest(fd, req_msg)

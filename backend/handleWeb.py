@@ -1,17 +1,35 @@
+
+import psycopg2
+from mysocket import *
+from ack import ack_list
+from checkAck import *
+from psycopg2 import OperationalError
+from protocal import amazon_ups_pb2 as ups
 from connectdb import get_db_connection
 
 
 def checkName(orderID):
+    print("enter checkName!")    
     conn = get_db_connection()
     if not conn:
         return None
     cursor = conn.cursor()
-    
-    with conn:
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT upsUsername FROM users_order WHERE id = %s", (orderID))
-            ups_Username = cursor.fetchone()[0]
-            return ups_Username if ups_Username else None
+    print("after cursor!")
+
+    try:
+        with conn:
+            print("111!")
+            with conn.cursor() as cursor:
+                print("222!")
+                cursor.execute('SELECT "upsUsername" FROM users_order WHERE id = %s', (orderID,))
+                print("before fetchone")
+                ups_Username = cursor.fetchone()[0]
+                print("ups_Username: ", ups_Username)
+                return ups_Username if ups_Username else None
+
+    except psycopg2.Error as e:
+        print(f"An error occurred while check name: {e}")
+        conn.rollback()
         
     
 def getOrderStatus(order_id):

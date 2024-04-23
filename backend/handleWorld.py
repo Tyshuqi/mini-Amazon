@@ -58,6 +58,7 @@ def toPack(fd, orderID):
     if not conn:
         return 
     cursor = conn.cursor()
+    print("after connect db")
     
     try:
         # Select product info through the users_orderitem model
@@ -66,7 +67,7 @@ def toPack(fd, orderID):
         FROM users_orderitem oi
         JOIN users_product p ON oi.product_id = p.id
         JOIN users_warehouse w ON p.warehouse_id = w.id
-        WHERE oi.order_id = %s;
+        WHERE oi.order_id_id = %s;
         ''', (orderID,))
         all_product = cursor.fetchall()
 
@@ -78,13 +79,16 @@ def toPack(fd, orderID):
             newproduct.id = product[0]
             newproduct.description = product[1]
             newproduct.count = product[2]
+        print("after for product in all_product")
 
         # Get warehouse number from the first product if available
         if all_product:
             pack_msg.whnum = all_product[0][3]
+            print("pack_msg.whnum", pack_msg.whnum)
         else:
             print("No products found for this order.")
             return
+        print("after Get warehouse number")
 
         pack_msg.shipid = orderID  # Set shipid to orderID
         seqNum = ack_list.add_request()  # Generate a sequence number
@@ -92,11 +96,13 @@ def toPack(fd, orderID):
 
         # Send APack until receive ack
         checkAndSendReq(fd, req_msg, seqNum)
+        print("after Send APack until receive ack")
 
         # Update order status to 'packing'
         update_query = 'UPDATE "users_order" SET status = %s WHERE id = %s'
         cursor.execute(update_query, ('packing', orderID))
         conn.commit()
+        print("after Update order status to 'packing'")
 
     except Exception as e:
         print(f"Error in toPack function: {e}")
@@ -121,7 +127,7 @@ def packed(fd, orderid):
         SELECT oi.product_id, oi.quantity as ordered_quantity, p.quantity as product_stock
         FROM users_orderitem oi
         JOIN users_product p ON oi.product_id = p.id
-        WHERE oi.order_id = %s;
+        WHERE oi.order_id_id = %s;
         """, (orderid,))
         order_items = cursor.fetchall()
 
@@ -255,7 +261,7 @@ def toLoad(fd, orderID, truckID):
             FROM users_warehouse
             JOIN users_product ON users_warehouse.id = users_product.warehouse_id
             JOIN users_orderitem ON users_product.id = users_orderitem.product_id
-            WHERE users_orderitem.order_id = %s
+            WHERE users_orderitem.order_id_id = %s
         """, (orderID,))
         
         # Fetch one warehouse ID (assuming all items in the order are from the same warehouse)
@@ -316,3 +322,85 @@ def loaded(fd, orderID):
         conn.close()
         
         
+def initPurchaseMore(fd, productid, amount):
+    conn = get_db_connection()
+    if not conn:
+        return 
+    cursor = conn.cursor()
+
+    try:
+        # Select product description using a parameterized query to avoid SQL injection
+        cursor.execute('SELECT description FROM users_product WHERE id = %s', (productid,))
+        product_description = cursor.fetchone()
+        if not product_description:
+            print("users_product not found.")
+            return
+        product_description = product_description[0]
+        
+        req_msg = world.ACommands()
+        purMore_msg = req_msg.buy.add()
+
+        # Add product details to the message
+        newproduct = purMore_msg.things.add()
+        newproduct.id = productid
+        newproduct.description = product_description
+        newproduct.count = amount
+
+        # Get warehouse ID using a parameterized query
+        cursor.execute("""
+            SELECT warehouse_id
+            FROM users_product
+            WHERE id = %s;
+        """, (productid,))
+        warehouseNum = cursor.fetchone()
+        if not warehouseNum:
+            print("users_warehouse not found for this product.")
+            return
+        warehouseNum = warehouseNum[0]
+
+        purMore_msg.whnum = warehouseNum
+
+        # Generate a sequence number
+        seqNum = ack_list.add_request()
+        purMore_msg.seqnum = seqNum
+        print("init seqnum: ", seqNum)
+
+        # Send the message until an acknowledgment is received
+        #checkAndSendReq(fd, req_msg, seqNum)
+        sendRequest(fd, req_msg)
+
+    finally:
+        # Cleanup: close cursor and connection
+        cursor.close()
+        conn.close()
+           
+        
+def getInitInventory():
+    conn = get_db_connection()
+    if not conn:
+        return 
+    cursor = conn.cursor()
+    
+    try:
+        # Get all products in the warehouse
+        cursor.execute('SELECT id, quantity FROM users_product')
+        all_product = cursor.fetchall()
+        return all_product
+
+    except Exception as e:
+        print(f"Error in getInitInventory: {e}")
+        return None
+    finally:
+        cursor.close()
+        conn.close()
+
+def initIventory(fd):
+    all_product = getInitInventory()
+    if not all_product:
+        return
+    
+    for product in all_product:
+        initPurchaseMore(fd, product[0], product[1])
+        res = receiveResponse(fd, world.AResponses)
+        for arrived in res.arrived:
+            sendAck_world(fd, arrived.seqnum)

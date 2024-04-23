@@ -18,12 +18,12 @@ def toOrderTruck(fd, orderID):
         ordertruck_msg = ups.AOrderTruck()
         # Fetch users_orderitem, users_product, users_warehouse, and users_order details for the given orderID
         cursor.execute("""
-            SELECT p.id, p.description, oi.quantity, w.id, w.x, w.y, oi.upsUsername, o.des_x, o.des_y
+            SELECT p.id, p.description, oi.quantity, w.id, w.x, w.y, o."upsUsername", o.des_x, o.des_y
             FROM users_orderitem oi
             JOIN users_product p ON oi.product_id = p.id
             JOIN users_warehouse w ON p.warehouse_id = w.id
-            JOIN users_order o ON oi.order_id = o.id
-            WHERE oi.order_id = %s
+            JOIN users_order o ON oi.order_id_id = o.id
+            WHERE oi.order_id_id = %s
         """, (orderID,))
 
         for row in cursor.fetchall():
@@ -47,7 +47,7 @@ def toOrderTruck(fd, orderID):
             ordertruck_msg.productInfo.CopyFrom(product_info)
             ordertruck_msg.warehouseInfo.CopyFrom(warehouse_info)
             ordertruck_msg.destinationInfo.CopyFrom(destination_info)
-            ordertruck_msg.upsUsername = row[6]
+            ordertruck_msg.upsUsername = row[6] if row[6] is not None else ''
             # generate a seq_num
             seqNum = ack_list.add_request()
             ordertruck_msg.seqnum = seqNum
@@ -122,9 +122,10 @@ def delivered(fd, orderID):
         
         
 # 4.22
-def sendName(fd, Name):    
+def sendName(fd, Name):
+    print("enter sendName!")    
     req_msg = ups.ACommand()
-    checkName_msg = req_msg.ACheckUsername.add()
+    checkName_msg = req_msg.checkUsers.add()
     checkName_msg.upsUsername = Name
     # Generate a seq_num
     seqNum = ack_list.add_request()

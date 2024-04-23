@@ -27,7 +27,8 @@ urlpatterns = [
     path('shopping/', shopping_view, name='shopping'), 
     path('submit-cart/', submit_cart, name='submit_cart'),
     path('view-cart-order/', view_cart_order, name='view_cart_order'),
-    path('myorder/', myorder, name='myorder'), 
+    path('myorder/', my_order_view, name='myorder'), 
+
     path('order-confirmation/', order_confirmation, name='order_confirmation'), 
     
 

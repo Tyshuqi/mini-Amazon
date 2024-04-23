@@ -19,6 +19,8 @@ def world_thread(world_fd, ups_fd):
         connect(world_fd)
         world_id = rec_connected(world_fd)
         print(f"Recieve World ID: {world_id}")
+        initIventory(world_fd)
+
         while True:
             res = receiveResponse(world_fd, world.AResponses)
             print("Recved from world!")
@@ -34,6 +36,7 @@ def world_thread(world_fd, ups_fd):
                 
             for err in res.error:
                print(f"Error from world: {err.err}, Origin SeqNum: {err.originseqnum}")
+               sendAck_world(world_fd, err.seqnum)
                 
             for loaded_row in res.loaded:
                 sendAck_world(world_fd, loaded_row.seqnum)
@@ -45,7 +48,8 @@ def world_thread(world_fd, ups_fd):
             for arrived in res.arrived:
                 sendAck_world(world_fd, arrived.seqnum)  
                 # TODO 3: write arrived in handleWorld, just update dabase, has finished this!
-                purchase_more_arrived(arrived.things.productid, arrived.things.count)
+                for item in arrived.things:
+                    purchase_more_arrived(item.id, item.count)
              
                 
     except Exception as e:
@@ -102,6 +106,7 @@ def ups_thread(ups_fd, world_fd):
                 
             for err in res.error:
                 print(f"Error from ups: {err.err}, Origin SeqNum: {err.originseqnum}")
+                sendAck_ups(ups_fd, err.seqnum)
             
     except Exception as e:
         print(f"Error in UPS thread: {e}")
@@ -115,7 +120,7 @@ def webapp_thread(webapp_fd, world_fd, ups_fd):
             res = receiveResponse(webapp_fd, web.WCommands) 
             print("Recved from webapp!")
             
-            for buy in res.Wbuy:
+            for buy in res.buy:
                 sendAck_web(webapp_fd, buy.seqnum)
                 # 4.22 check upsname
                 Name = checkName(buy.orderid)
@@ -133,7 +138,7 @@ def webapp_thread(webapp_fd, world_fd, ups_fd):
                 print("Handling webapp Waskmore!")
                 #sendAck_web(webapp_fd, askmore.seqnum)
                 # TODO 1: has finished this
-                toPurchaseMore(world_fd, askmore.productid, askmore.amount)
+                toPurchaseMore(world_fd, askmore.productid, askmore.count)
         
     except Exception as e:
         print(f"Error in webapp thread: {e}")
