@@ -15,7 +15,9 @@ def toOrderTruck(fd, orderID):
     cursor = conn.cursor()
 
     try:
-        ordertruck_msg = ups.AOrderTruck()
+        req_msg = ups.ACommand()
+        ordertruck_msg = req_msg.toOrder.add()
+        # product_msg = ordertruck_msg.productInfo.add()
         # Fetch users_orderitem, users_product, users_warehouse, and users_order details for the given orderID
         cursor.execute("""
             SELECT p.id, p.description, oi.quantity, w.id, w.x, w.y, o."upsUsername", o.des_x, o.des_y
@@ -25,40 +27,33 @@ def toOrderTruck(fd, orderID):
             JOIN users_order o ON oi.order_id_id = o.id
             WHERE oi.order_id_id = %s
         """, (orderID,))
-
-        for row in cursor.fetchall():
-            product_info = ups.product(
-                productID=row[0],
-                description=row[1],
-                count=row[2]
-            )
-            warehouse_info = ups.warehouse(
-                warehouseID=row[3],
-                x=row[4],
-                y=row[5]
-            )
-            destination_info = ups.destination(
-                x=row[7],
-                y=row[8]
-            )
-
-            # Populate the AOrderTruck message
-            ordertruck_msg.packageID = orderID
-            ordertruck_msg.productInfo.CopyFrom(product_info)
-            ordertruck_msg.warehouseInfo.CopyFrom(warehouse_info)
-            ordertruck_msg.destinationInfo.CopyFrom(destination_info)
-            ordertruck_msg.upsUsername = row[6] if row[6] is not None else ''
-            # generate a seq_num
-            seqNum = ack_list.add_request()
-            ordertruck_msg.seqnum = seqNum
-            checkAndSendReq(fd, ordertruck_msg, seqNum)
+        all_products = cursor.fetchall()
+        for product in all_products:
+            product_msg = ordertruck_msg.productInfo.add()
+            product_msg.id = product[0]
+            product_msg.description = product[1]
+            product_msg.count = product[2]
+            
+        ordertruck_msg.packageID = orderID
+        ordertruck_msg.warehouseInfo.warehouseID = all_products[0][3]
+        ordertruck_msg.warehouseInfo.x = all_products[0][4]
+        ordertruck_msg.warehouseInfo.y = all_products[0][5]
+        ordertruck_msg.destinationInfo.x = all_products[0][7]
+        ordertruck_msg.destinationInfo.y = all_products[0][8]
+        ordertruck_msg.upsUsername = all_products[0][6] if all_products[0][6] is not None else ''
+        
+        # generate a seq_num
+        seqNum = ack_list.add_request()
+        ordertruck_msg.seqnum = seqNum
+        print("Before send ups: toOrderTruck")
+        checkAndSendReq(fd, req_msg, seqNum)
+        print("(end send)After send ups: toOrderTruck")
     
     except Exception as e:
         print(f"Error: {e}")
     finally:
         cursor.close()
         conn.close()
-    
     
     
 def startDelivery(fd, orderID):
@@ -82,8 +77,10 @@ def startDelivery(fd, orderID):
         seqNum = ack_list.add_request()
         startDelivery_msg.seqnum = seqNum
 
+        print("Before send ups: startDelivery")
         # Send until receive acks
         checkAndSendReq(fd, req_msg, seqNum)
+        print("(end send)After send ups: startDelivery")
 
         print("Delivery started for order ID:", orderID)
 

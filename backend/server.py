@@ -18,6 +18,7 @@ def world_thread(world_fd, ups_fd):
     try:
         connect(world_fd)
         world_id = rec_connected(world_fd)
+        #world_id = 789
         print(f"Recieve World ID: {world_id}")
         initIventory(world_fd)
 
@@ -30,6 +31,7 @@ def world_thread(world_fd, ups_fd):
                 ack_list.remove_ack(ack)
             
             for ready in res.ready:
+                print("Recved ready packed from world!")
                 sendAck_world(world_fd, ready.seqnum)
                 # update order statuse to "packed"
                 packed(world_fd, ready.shipid)
@@ -39,6 +41,7 @@ def world_thread(world_fd, ups_fd):
                sendAck_world(world_fd, err.seqnum)
                 
             for loaded_row in res.loaded:
+                print("Recved loaded from world!")
                 sendAck_world(world_fd, loaded_row.seqnum)
                 # TODO 5: write loaded in handleWorld, just update order_status? has finished this!
                 loaded(world_fd, loaded_row.shipid) 
@@ -46,6 +49,7 @@ def world_thread(world_fd, ups_fd):
                 startDelivery(ups_fd, loaded_row.shipid)
             
             for arrived in res.arrived:
+                print("Recved arrived from world!")
                 sendAck_world(world_fd, arrived.seqnum)  
                 # TODO 3: write arrived in handleWorld, just update dabase, has finished this!
                 for item in arrived.things:
@@ -69,6 +73,7 @@ def ups_thread(ups_fd, world_fd):
                 
             # 4.22
             for check_User in res.checkUser:
+                print("Recved checkUser from ups!")
                 sendAck_ups(ups_fd, check_user.seqnum)
                 # uodate order status and upsid, check upsid!=-1 continue, else change status
                 ups_id = check_User.upsUserID
@@ -85,6 +90,7 @@ def ups_thread(ups_fd, world_fd):
                     
                              
             for arrive in res.arrived:
+                print("Recved truck arrived from ups!")
                 sendAck_ups(ups_fd, arrive.seqnum)
                 # TODO 4: wait for order.status== packed,  start load, send to world
                 orderID = arrive.packageID
@@ -100,6 +106,7 @@ def ups_thread(ups_fd, world_fd):
                 toLoad(world_fd, orderID, arrive.truckID)
  
             for delivered_row in res.delivered:
+                print("Recved delivered from ups!")
                 sendAck_ups(ups_fd, delivered_row.seqnum)
                 # TODO 7: just update order status?  has finished this!
                 delivered(ups_fd, delivered_row.packageID)
@@ -121,6 +128,7 @@ def webapp_thread(webapp_fd, world_fd, ups_fd):
             print("Recved from webapp!")
             
             for buy in res.buy:
+                print("Recved user buy sth from webapp!")
                 sendAck_web(webapp_fd, buy.seqnum)
                 # 4.22 check upsname
                 Name = checkName(buy.orderid)
@@ -135,6 +143,7 @@ def webapp_thread(webapp_fd, world_fd, ups_fd):
 
                 
             for askmore in res.askmore:
+                print("Recved askmore from webapp!")
                 print("Handling webapp Waskmore!")
                 #sendAck_web(webapp_fd, askmore.seqnum)
                 # TODO 1: has finished this
@@ -151,8 +160,12 @@ if __name__ == "__main__":
     #worldFD = clientSocket('vcm-38127.vm.duke.edu', 23456)
     worldFD = clientSocket('vcm-38181.vm.duke.edu', 23456)
     print("Success connect to worldFD:", worldFD)
-    #upsFD = clientSocket("vcm-40471.vm.duke.edu", 34567)
+    
+    # server_fd2 = serverSocket('vcm-38181.vm.duke.edu', 34567)
+    # upsFD, addr2 = server_fd2.accept()
+    # print("Success connect to ups:", upsFD)
     upsFD = 5
+    
     server_fd = serverSocket('vcm-38181.vm.duke.edu', 45678)
     webappFD, addr = server_fd.accept()
     webappFD, addr = server_fd.accept()
