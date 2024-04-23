@@ -60,12 +60,12 @@ def toPack(fd, orderID):
     cursor = conn.cursor()
     
     try:
-        # Select product info through the OrderItem model
+        # Select product info through the users_orderitem model
         cursor.execute('''
         SELECT p.id, p.description, oi.quantity, w.id as warehouse_id
-        FROM OrderItem oi
-        JOIN Product p ON oi.product_id = p.id
-        JOIN Warehouse w ON p.warehouse_id = w.id
+        FROM users_orderitem oi
+        JOIN users_product p ON oi.product_id = p.id
+        JOIN users_warehouse w ON p.warehouse_id = w.id
         WHERE oi.order_id = %s;
         ''', (orderID,))
         all_product = cursor.fetchall()
@@ -94,7 +94,7 @@ def toPack(fd, orderID):
         checkAndSendReq(fd, req_msg, seqNum)
 
         # Update order status to 'packing'
-        update_query = 'UPDATE "Order" SET status = %s WHERE id = %s'
+        update_query = 'UPDATE "users_order" SET status = %s WHERE id = %s'
         cursor.execute(update_query, ('packing', orderID))
         conn.commit()
 
@@ -119,8 +119,8 @@ def packed(fd, orderid):
         # Get all order items and their corresponding product stock information
         cursor.execute("""
         SELECT oi.product_id, oi.quantity as ordered_quantity, p.quantity as product_stock
-        FROM OrderItem oi
-        JOIN Product p ON oi.product_id = p.id
+        FROM users_orderitem oi
+        JOIN users_product p ON oi.product_id = p.id
         WHERE oi.order_id = %s;
         """, (orderid,))
         order_items = cursor.fetchall()
@@ -139,20 +139,20 @@ def packed(fd, orderid):
             for item in order_items:
                 product_id, ordered_quantity, _ = item
                 cursor.execute("""
-                UPDATE Product SET quantity = quantity - %s
+                UPDATE users_product SET quantity = quantity - %s
                 WHERE id = %s;
                 """, (ordered_quantity, product_id))
             
             cursor.execute("""
-            UPDATE "Order" SET status = 'packed'
+            UPDATE "users_order" SET status = 'packed'
             WHERE id = %s;
             """, (orderid,))
             conn.commit()
-            print("Order packed and product quantities updated.")
+            print("users_order packed and product quantities updated.")
         else:
             # If not all items can be packed, do not commit any changes
             conn.rollback()
-            print("Order not packed due to insufficient stock.")
+            print("users_order not packed due to insufficient stock.")
 
     except psycopg2.Error as e:
         print(f"An error occurred: {e}")
@@ -170,10 +170,10 @@ def toPurchaseMore(fd, productid, amount):
 
     try:
         # Select product description using a parameterized query to avoid SQL injection
-        cursor.execute('SELECT description FROM Product WHERE id = %s', (productid,))
+        cursor.execute('SELECT description FROM users_product WHERE id = %s', (productid,))
         product_description = cursor.fetchone()
         if not product_description:
-            print("Product not found.")
+            print("users_product not found.")
             return
         product_description = product_description[0]
         
@@ -189,12 +189,12 @@ def toPurchaseMore(fd, productid, amount):
         # Get warehouse ID using a parameterized query
         cursor.execute("""
             SELECT warehouse_id
-            FROM Product
+            FROM users_product
             WHERE id = %s;
         """, (productid,))
         warehouseNum = cursor.fetchone()
         if not warehouseNum:
-            print("Warehouse not found for this product.")
+            print("users_warehouse not found for this product.")
             return
         warehouseNum = warehouseNum[0]
 
@@ -221,9 +221,9 @@ def purchase_more_arrived(product_id, amount):
     cursor = conn.cursor()
     
     try:    
-        # Update the product stock in the Product table
+        # Update the product stock in the users_product table
         cursor.execute("""
-            UPDATE Product 
+            UPDATE users_product 
             SET quantity = quantity + %s 
             WHERE id = %s;
         """, (amount, product_id))
@@ -252,16 +252,16 @@ def toLoad(fd, orderID, truckID):
         # Get the warehouse ID for the products associated with the order
         cursor.execute("""
             SELECT DISTINCT warehouse.id
-            FROM Warehouse
-            JOIN Product ON Warehouse.id = Product.warehouse_id
-            JOIN OrderItem ON Product.id = OrderItem.product_id
-            WHERE OrderItem.order_id = %s
+            FROM users_warehouse
+            JOIN users_product ON users_warehouse.id = users_product.warehouse_id
+            JOIN users_orderitem ON users_product.id = users_orderitem.product_id
+            WHERE users_orderitem.order_id = %s
         """, (orderID,))
         
         # Fetch one warehouse ID (assuming all items in the order are from the same warehouse)
         warehouse_id = cursor.fetchone()[0]
         if warehouse_id is not None:
-            print("Warehouse ID:", warehouse_id)
+            print("users_warehouse ID:", warehouse_id)
             # toLoad_msg = world.APutOnTruck()
             toLoad_msg.whnum = warehouse_id
             toLoad_msg.truckid = truckID
@@ -273,7 +273,7 @@ def toLoad(fd, orderID, truckID):
             checkAndSendReq(fd, req_msg, seqNum)
             
             # Update order status to 'loading'
-            update_query = 'UPDATE "Order" SET status = %s WHERE id = %s'
+            update_query = 'UPDATE "users_order" SET status = %s WHERE id = %s'
             cursor.execute(update_query, ('loading', orderID))
             conn.commit()
         else:
@@ -296,14 +296,14 @@ def loaded(fd, orderID):
     try:
         # Update order status to 'loaded'
         cursor.execute("""
-        UPDATE "Order"
+        UPDATE "users_order"
         SET status = %s
         WHERE id = %s;
         """, ('loaded', orderID))
 
         # Commit the changes to the database
         conn.commit()
-        print("Order status updated to 'loaded'.")
+        print("users_order status updated to 'loaded'.")
         
     except psycopg2.Error as e:
         # Print an error message and rollback in case of exception

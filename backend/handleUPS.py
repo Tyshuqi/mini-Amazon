@@ -16,13 +16,13 @@ def toOrderTruck(fd, orderID):
 
     try:
         ordertruck_msg = ups.AOrderTruck()
-        # Fetch OrderItem, Product, Warehouse, and Order details for the given orderID
+        # Fetch users_orderitem, users_product, users_warehouse, and users_order details for the given orderID
         cursor.execute("""
             SELECT p.id, p.description, oi.quantity, w.id, w.x, w.y, oi.upsUsername, o.des_x, o.des_y
-            FROM OrderItem oi
-            JOIN Product p ON oi.product_id = p.id
-            JOIN Warehouse w ON p.warehouse_id = w.id
-            JOIN Order o ON oi.order_id = o.id
+            FROM users_orderitem oi
+            JOIN users_product p ON oi.product_id = p.id
+            JOIN users_warehouse w ON p.warehouse_id = w.id
+            JOIN users_order o ON oi.order_id = o.id
             WHERE oi.order_id = %s
         """, (orderID,))
 
@@ -69,7 +69,7 @@ def startDelivery(fd, orderID):
     
     try:
         # Update the order status to 'delivering' before sending the delivery command
-        update_query = 'UPDATE "Order" SET status = %s WHERE id = %s'
+        update_query = 'UPDATE "users_order" SET status = %s WHERE id = %s'
         cursor.execute(update_query, ('delivering', orderID))
         conn.commit()
 
@@ -104,10 +104,10 @@ def delivered(fd, orderID):
     
     try:
         # Update the order status to 'delivered'
-        update_query = 'UPDATE "Order" SET status = %s WHERE id = %s'
+        update_query = 'UPDATE "users_order" SET status = %s WHERE id = %s'
         cursor.execute(update_query, ('delivered', orderID))
         conn.commit()
-        print(f"Order {orderID} has been marked as delivered.")
+        print(f"users_order {orderID} has been marked as delivered.")
 
     except psycopg2.Error as e:
         # If an error occurs, print an error message and rollback any changes

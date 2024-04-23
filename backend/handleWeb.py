@@ -9,7 +9,7 @@ def checkName(orderID):
     
     with conn:
         with conn.cursor() as cursor:
-            cursor.execute("SELECT upsUsername FROM Order WHERE id = %s", (orderID))
+            cursor.execute("SELECT upsUsername FROM users_order WHERE id = %s", (orderID))
             ups_Username = cursor.fetchone()[0]
             return ups_Username if ups_Username else None
         
@@ -21,7 +21,7 @@ def getOrderStatus(order_id):
     
     with conn:
         with conn.cursor() as cursor:
-            cursor.execute("SELECT status FROM Order WHERE id = %s", (order_id,))
+            cursor.execute("SELECT status FROM users_order WHERE id = %s", (order_id,))
             result = cursor.fetchone()
             return result[0] if result else None
         
@@ -34,16 +34,16 @@ def updateUpsID(ups_id, orderID):
     cursor = conn.cursor()
     
     try:
-        update_query = 'UPDATE "Order" SET upsUserID = %s WHERE id = %s'
+        update_query = 'UPDATE "users_order" SET upsUserID = %s WHERE id = %s'
         cursor.execute(update_query, (ups_id, orderID))
         if cursor.rowcount == 0:
             print(f"No such order with ID {orderID} exists to update.")
         else:
             conn.commit()
-            print(f"UPS ID {ups_id} has been added to Order {orderID}")
+            print(f"UPS ID {ups_id} has been added to users_order {orderID}")
     
     except psycopg2.Error as e:
-        print(f"An error occurred while updating the UPS ID for Order ID {orderID}: {e}")
+        print(f"An error occurred while updating the UPS ID for users_order ID {orderID}: {e}")
         conn.rollback()
     
     finally:
@@ -61,14 +61,14 @@ def updateOrderStatus(orderID, newStatus):
     
     try:
         # Update the status of the order
-        update_query = 'UPDATE "Order" SET status = %s WHERE id = %s'
+        update_query = 'UPDATE "users_order" SET status = %s WHERE id = %s'
         cursor.execute(update_query, (newStatus, orderID))
         
         if cursor.rowcount == 0:
             print(f"No order found with ID {orderID}.")
         else:
             conn.commit()
-            print(f"Order status updated to {newStatus} for Order ID {orderID}.")
+            print(f"users_order status updated to {newStatus} for users_order ID {orderID}.")
     
     except Exception as e:  # It's good to catch specific exceptions, adjust as needed
         print(f"An error occurred while updating the order status: {e}")
