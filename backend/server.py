@@ -160,18 +160,20 @@ if __name__ == "__main__":
     #worldFD = clientSocket('vcm-38127.vm.duke.edu', 23456)
     worldFD = clientSocket('vcm-38181.vm.duke.edu', 23456)
     print("Success connect to worldFD:", worldFD)
-    
-    # server_fd2 = serverSocket('vcm-38181.vm.duke.edu', 34567)
-    # upsFD, addr2 = server_fd2.accept()
-    # print("Success connect to ups:", upsFD)
-    upsFD = 5
-    
+
     server_fd = serverSocket('vcm-38181.vm.duke.edu', 45678)
     webappFD, addr = server_fd.accept()
     webappFD, addr = server_fd.accept()
     webappFD, addr = server_fd.accept()
     print("Success connect to webappFD:", webappFD)
     #webappFD = 6
+    
+    server_fd2 = serverSocket('vcm-38181.vm.duke.edu', 34567)
+    upsFD, addr2 = server_fd2.accept()
+    print("Success connect to ups:", upsFD)
+    #upsFD = 5
+    
+    
     
     #ack_list = AckTracker()
 

@@ -30,7 +30,7 @@ def toOrderTruck(fd, orderID):
         all_products = cursor.fetchall()
         for product in all_products:
             product_msg = ordertruck_msg.productInfo.add()
-            product_msg.id = product[0]
+            product_msg.productID = product[0]
             product_msg.description = product[1]
             product_msg.count = product[2]
             

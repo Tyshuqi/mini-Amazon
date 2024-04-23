@@ -33,51 +33,50 @@ def sendRequest(fd, req_msg):
     _EncodeVarint(fd.send, len(req_string), None)  # Encodes and sends the length
     fd.send(req_string)  # Then send the message
     
-# receive string and convert to message  
-# def receiveResponse(fd, res_type):
-#     # var_int_buff = []
-#     # while True:
-#     #     buf = fd.recv(1)
-#     #     var_int_buff += buf
-#     #     msg_len, new_pos = _DecodeVarint32(var_int_buff, 0)
-#     #     if new_pos != 0:
-#     #         break
-#     # whole_message = fd.recv(msg_len)  # string
+#receive string and convert to message  
+def receiveResponse(fd, res_type):
+    # var_int_buff = []
+    # while True:
+    #     buf = fd.recv(1)
+    #     var_int_buff += buf
+    #     msg_len, new_pos = _DecodeVarint32(var_int_buff, 0)
+    #     if new_pos != 0:
+    #         break
+    # whole_message = fd.recv(msg_len)  # string
 
-#     # response = res_type()
-#     # response.ParseFromString(whole_message)
-#     # return response
-#     var_int_buff = b''  # Use bytes instead of a list
-#     while True:
-#         print("Type of fd:", type(fd))
-#         buf = fd.recv(1)
-#         if not buf:
-#             print("not buf")
-#             raise ConnectionError("Connection closed by the remote server")
-#         print("after buf")
-#         var_int_buff += buf
-#         print("var_int_buff: ", var_int_buff)
-#         msg_len, new_pos = _DecodeVarint32(var_int_buff, 0)
-#         print("!!!!!,", new_pos)
-#         if new_pos != 0:
-#             break
-#     print("after while")
-#     whole_message = fd.recv(msg_len)  # Read the whole message based on the length prefix
-#     print("Length::",len(whole_message))
-#     if len(whole_message) < msg_len:
-#         raise IOError("Failed to receive the entire message")
+    # response = res_type()
+    # response.ParseFromString(whole_message)
+    # return response
+    var_int_buff = b''  # Use bytes instead of a list
+    while True:
+        print("Type of fd:", type(fd))
+        buf = fd.recv(1)
+        if not buf:
+            raise ConnectionError("Connection closed by the remote server")
+        
+        var_int_buff += buf
+        
+        msg_len, new_pos = _DecodeVarint32(var_int_buff, 0)
+        
+        if new_pos != 0:
+            break
+    
+    whole_message = fd.recv(msg_len)  # Read the whole message based on the length prefix
+    
+    if len(whole_message) < msg_len:
+        raise IOError("Failed to receive the entire message")
 
-#     response = res_type()
-#     print("whole_message: ", whole_message)
-#     response.ParseFromString(whole_message)
-#     return response
-
+    response = res_type()
+    
+    response.ParseFromString(whole_message)
+    return response
 
 
 
 
 
-def receiveResponse(sock, response_type):
+
+def CreceiveResponse(sock, response_type):
     data = read_varint_delimited_stream(sock)
     response = response_type()
     response.ParseFromString(data)

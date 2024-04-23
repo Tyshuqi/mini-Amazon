@@ -25,7 +25,7 @@ def connect(fd):
     
     # init world
     connect_msg = world.AConnect()
-    #connect_msg.worldid = 1
+    connect_msg.worldid = 20
     connect_msg.isAmazon = True
     
     
@@ -47,7 +47,7 @@ def connect(fd):
     
 def rec_connected(fd):
     print("before recv!")
-    res = receiveResponse(fd,world.AConnected)
+    res = CreceiveResponse(fd,world.AConnected)
     print("after recv!")
     if res.result == 'connected!':
         world_id = res.worldid
