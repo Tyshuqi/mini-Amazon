@@ -31,7 +31,7 @@ DEBUG = True
 #ALLOWED_HOSTS = ['localhost', '127.0.0.1','web']
 #docker
 ALLOWED_HOSTS = ['web', '127.0.0.1', '0.0.0.0']
-CSRF_TRUSTED_ORIGINS = ['http://0.0.0.0:8000']
+CSRF_TRUSTED_ORIGINS = ['http://0.0.0.0:8000','http://vcm-38181.vm.duke.edu:8000']
 
 STATIC_URL = '/static/'
 

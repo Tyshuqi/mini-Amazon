@@ -161,9 +161,10 @@ def order_confirmation(request):
     cart_order = get_object_or_404(CartOrder, user=request.user, is_open=True)
     order_items = OrderItem.objects.filter(cart_order=cart_order)
 
-    
-
     warehouse_groups = defaultdict(list)
+    enough_items = defaultdict(list)
+    short_items = []
+
     for item in order_items:
         if item.quantity <= item.product.quantity:
             item.status = 'enough'
@@ -172,6 +173,7 @@ def order_confirmation(request):
         else:
             item.status = 'short'
             item.save()
+            short_items.append(item)
             reqq_msg = web.WCommands()
             more_msg = reqq_msg.askmore.add()
             more_msg.productid = item.product.id
@@ -197,6 +199,8 @@ def order_confirmation(request):
                 for item in items:
                     item.order_id = new_order
                     item.save()
+                enough_items[new_order.id] = items
+                print("new_order.id: ", new_order.id)
 
                 req_msg = web.WCommands()
                 buy_msg = req_msg.buy.add()
@@ -206,9 +210,11 @@ def order_confirmation(request):
 
                 sendRequest(back_fd, req_msg)
                 print("Send buy request!")
-
-    
+    enough_items = dict(enough_items) 
+    print("enough_items", enough_items)
+    print("short_items", short_items)
     return render(request, 'order_confirmation.html', {
-        'order_items': order_items,
+        'short_items': short_items,
+        'enough_items': enough_items,
         'cart_order': cart_order
     })

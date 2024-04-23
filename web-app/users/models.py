@@ -38,6 +38,7 @@ class Order(models.Model):
     upsUserID =  models.IntegerField(null=True, blank=True)
 
     def __str__(self):
+       
         return f"{self.quantity} x {self.product.description} for Order {self.order.id} (UPS Username: {self.upsUsername})"
     
 class CartOrder(models.Model):
@@ -60,7 +61,8 @@ class OrderItem(models.Model):
     
 
     def __str__(self):
-        return f"{self.quantity} x {self.product.description} for Order {self.order.id}"
+        #return f"{self.quantity} x {self.product.description} for Order {self.order_id.id}"
+        return f"{self.quantity} x {self.product.description}"
 
 
 

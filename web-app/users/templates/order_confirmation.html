@@ -1,13 +1,35 @@
 {% extends 'base.html' %}
+{% load filters %}
 
 {% block content %}
 <h2>Order Confirmation</h2>
 <p>Thank you for your order. Here are the details:</p>
-<ul>
-    <li>Destination: ({{ cart_order.des_x }}, {{ cart_order.des_y }})
-    <li>UPS Name: {{ cart_order.ups_name }}
-    {% for item in order_items %}
-    <li>{{ item.product.description }}: {{ item.quantity }} units at ${{ item.product.price }}</li>
+
+<p>Destination: ({{ cart_order.des_x }}, {{ cart_order.des_y }})</p>
+<p>UPS Name: {{ cart_order.ups_name }}</p>
+
+
+<h3>Available Products</h3>
+{% for order_id, items in enough_items.items %}
+    <h4>Order #{{ order_id }}</h4>
+    <ul>
+    {% for item in items %}
+        <li>{{ item.product.description }}: {{ item.quantity }} units at ${{ item.product.price }} each</li>
     {% endfor %}
-</ul>
+    </ul>
+    <p>Total Price: ${{ items|sum_product:'price' }}</p>
+{% endfor %}
+
+
+<h3>Out of Stock Products</h3>
+{% if short_items %}
+    <p>These products are out of stock, please buy them later:</p>
+    <ul>
+    {% for item in short_items %}
+    <li>{{ item.product.description }}: {{ item.quantity|subtract:item.product.quantity }} needed</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>All products are in stock!</p>
+{% endif %}
 {% endblock %}
