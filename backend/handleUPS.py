@@ -40,7 +40,7 @@ def toOrderTruck(fd, orderID):
         ordertruck_msg.warehouseInfo.y = all_products[0][5]
         ordertruck_msg.destinationInfo.x = all_products[0][7]
         ordertruck_msg.destinationInfo.y = all_products[0][8]
-        ordertruck_msg.upsUsername = all_products[0][6] if all_products[0][6] is not None else ''
+        ordertruck_msg.upsUsername = all_products[0][6] if all_products[0][6] is not None else 'user1'
         
         # generate a seq_num
         seqNum = ack_list.add_request()

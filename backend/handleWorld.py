@@ -25,7 +25,7 @@ def connect(fd):
     
     # init world
     connect_msg = world.AConnect()
-    connect_msg.worldid = 20
+    # connect_msg.worldid = 20
     connect_msg.isAmazon = True
     
     
@@ -261,15 +261,35 @@ def toLoad(fd, orderID, truckID):
     try:
         # Get the warehouse ID for the products associated with the order
         cursor.execute("""
-            SELECT DISTINCT warehouse.id
+            SELECT DISTINCT users_warehouse.id, users_product.id
             FROM users_warehouse
             JOIN users_product ON users_warehouse.id = users_product.warehouse_id
             JOIN users_orderitem ON users_product.id = users_orderitem.product_id
             WHERE users_orderitem.order_id_id = %s
         """, (orderID,))
         
+
         # Fetch one warehouse ID (assuming all items in the order are from the same warehouse)
-        warehouse_id = cursor.fetchone()[0]
+        results = cursor.fetchall()
+        if not results:
+            print("No warehouse or products found for order ID:", orderID)
+            return
+
+        # Assuming all items are from the same warehouse, use the first result
+        warehouse_id, product_id = results[0]  # Gets the first tuple (first row)
+        print("Warehouse ID:", warehouse_id)
+        print("Product ID:", product_id)
+        # PRO_ID = data[1]
+        # print("producct!!!!!!!,", PRO_ID)
+        # warehouse_id = data[0]
+        # print("WAREHOUSE", warehouse_id)
+        # #warehouse_id = cursor.fetchone()
+        # if not warehouse_id:
+        #     print("warehouse_id not found.")
+        #     print("orderID: ", orderID)
+        #     return
+        # warehouse_id = warehouse_id[0]
+
         if warehouse_id is not None:
             print("users_warehouse ID:", warehouse_id)
             # toLoad_msg = world.APutOnTruck()

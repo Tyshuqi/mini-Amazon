@@ -10,6 +10,9 @@ from django.core.files import File
 
 Warehouse.objects.all().delete()
 Product.objects.all().delete()
+Order.objects.all().delete()
+CartOrder.objects.all().delete()
+OrderItem.objects.all().delete()
     
 warehouse1 = Warehouse(x=1, y=1)
 warehouse1.save()
