@@ -1,3 +1,9 @@
 *.pyc
 # Ignore JPEG images in the web-app/product_image/images directory
 web-app/product_image/images/*.jpeg
+
+/backend/__pycache__/
+
+/web-app/__pycache__/
+/web-app/finalproj/__pycache__/
+/web-app/users/__pycache__/
