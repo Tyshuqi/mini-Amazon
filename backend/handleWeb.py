@@ -132,29 +132,68 @@ def updateUpsIDsForPendingOrders(ups_id, upsUsername):
 
 
     
-def updateOrderStatus(orderID, newStatus):
+# def updateOrderStatus(orderID, newStatus):
+#     conn = get_db_connection()
+#     if not conn:
+#         print("Failed to connect to the database.")
+#         return
+    
+#     cursor = conn.cursor()
+    
+#     try:
+#         # Update the status of the order
+#         update_query = 'UPDATE "users_order" SET status = %s WHERE id = %s'
+#         cursor.execute(update_query, (newStatus, orderID))
+        
+#         if cursor.rowcount == 0:
+#             print(f"No order found with ID {orderID}.")
+#         else:
+#             conn.commit()
+#             print(f"users_order status updated to {newStatus} for users_order ID {orderID}.")
+    
+#     except Exception as e:  # It's good to catch specific exceptions, adjust as needed
+#         print(f"An error occurred while updating the order status: {e}")
+#         conn.rollback()
+    
+#     finally:
+#         cursor.close()
+#         conn.close()
+
+def updateOrderStatus(upsUsername, newStatus):
+
     conn = get_db_connection()
     if not conn:
-        print("Failed to connect to the database.")
-        return
-    
+        print("Database connection failed.")
+        return []
     cursor = conn.cursor()
-    
+
+    updated_order_ids = []  # List to collect updated order IDs
+
     try:
-        # Update the status of the order
+        # Fetching pending order IDs for the given username
+        fetch_query = 'SELECT id FROM "users_order" WHERE "upsUsername" = %s AND status = %s'
+        cursor.execute(fetch_query, (upsUsername, "pending"))
+        order_ids = [row[0] for row in cursor.fetchall()]
+
+        # Updating each order
         update_query = 'UPDATE "users_order" SET status = %s WHERE id = %s'
-        cursor.execute(update_query, (newStatus, orderID))
-        
-        if cursor.rowcount == 0:
-            print(f"No order found with ID {orderID}.")
-        else:
-            conn.commit()
-            print(f"users_order status updated to {newStatus} for users_order ID {orderID}.")
-    
-    except Exception as e:  # It's good to catch specific exceptions, adjust as needed
-        print(f"An error occurred while updating the order status: {e}")
+        for orderID in order_ids:
+            cursor.execute(update_query, (newStatus, orderID))
+            if cursor.rowcount > 0:
+                conn.commit()
+                updated_order_ids.append(orderID)  # Collect the successfully updated order ID
+                print(f"users_order status updated to {newStatus} for users_order ID {orderID}.")
+            else:
+                print(f"No such order with ID {orderID} exists to update status.")
+
+    except psycopg2.Error as e:
+        print(f"An error occurred: {e}")
         conn.rollback()
     
     finally:
         cursor.close()
         conn.close()
+
+
+    
+   
