@@ -1,30 +1,43 @@
-
 {% extends 'base.html' %}
 
 {% block content %}
 <div class="navbar">
   <a href="{% url 'user_home' %}">User Home</a>
+  <!-- <p class="lead mb-5 text-white">Use the search bar to find products:</p> -->
+
+  <form method="get" action="/search_result" class="mb-3">
+    <div class="input-group">
+      <input type="text" class="form-control" name="search_input" placeholder="Search...">
+      <button type="submit" class="btn btn-warning">Search</button>
+    </div>
+  </form>
+
   <a href="{% url 'home' %}">Log out</a>
 </div>
-<form method="post" action="{% url 'submit_cart' %}">
-  {% csrf_token %}
-  <div class="left-content">
-    {% for product in products %}
-    <div class="product">
-      <!-- Display the image -->
-      {% if product.image %}
-        <img src="{{ product.image.url }}" alt="{{ product.description }}">
-      {% else %}
-        <p>No image available</p>
-      {% endif %}
+<div class="left-content">
+  {% for product in products %}
+  <div class="product">
+    <!-- Display the image -->
+    {% if product.image %}
+    <img src="{{ product.image.url }}" alt="{{ product.description }}">
+    {% else %}
+    <p>No image available</p>
+    {% endif %}
 
-      <h2>{{ product.description }}</h2>
-      <h3>Price: ${{ product.price }}</h3>
+    <h2>{{ product.description }}</h2>
+    <h3>Price: ${{ product.price }}</h3>
+    <form method="post" action="{% url 'add_cart' %}">
+      {% csrf_token %}
+      <input type="hidden" name="product_id" value="{{ product.id }}">
       <label for="quantity_{{ product.id }}">Quantity:</label>
-      <input type="number" id="quantity_{{ product.id }}" name="quantity_{{ product.id }}" min="0" value="0">
-    </div>
-    {% endfor %}
+      <input type="number" id="quantity_{{ product.id }}" name="quantity" min="0" value="0">
+      <button type="submit" class="btn btn-primary">Add to Cart</button>
+    </form>
   </div>
-  <button class="buy-button" type="submit">Buy</button>
-</form>
+  {% endfor %}
+</div>
+
+<div class="review-cart">
+  <a href="{% url 'review_cart' %}" class="btn btn-success">Review Cart</a>
+</div>
 {% endblock %}

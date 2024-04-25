@@ -8,8 +8,9 @@ from django.conf import settings
 urlpatterns = [
 
     path('', home, name='home'),
+    path('login/', CustomLoginView.as_view(), name='login'),
 
-    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    # path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='logout.html'), name='logout'),
 
     path('user-home/', user_home, name='user_home'), 
@@ -18,8 +19,14 @@ urlpatterns = [
     
 
     # path('register-driver/', register_driver, name='register_driver'),
-    
+    path('search_result/', search_products, name='search_products'),
+    path('add_cart/', add_cart, name='add_cart'),
+    path('review_cart/', review_cart, name='review_cart'),
 
+    
+    
+    
+    
     path('user-info/', user_info, name='user_info'),
     
     path('update-user-info/', update_user_info, name='update_user_info'),

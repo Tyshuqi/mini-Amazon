@@ -21,6 +21,8 @@ class Product(models.Model):
     def __str__(self):
         return self.description
 
+    
+
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders', null=True)
     status = models.CharField(max_length=20, choices=[
@@ -49,6 +51,7 @@ class CartOrder(models.Model):
     des_x = models.IntegerField(null=True, blank=True)
     des_y = models.IntegerField(null=True, blank=True)
     ups_name = models.CharField(max_length=100, null=True, blank=True) 
+    cookie = models.CharField(max_length=100, null=True, blank=True)
 
 
 class OrderItem(models.Model):
