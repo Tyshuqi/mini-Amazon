@@ -251,7 +251,16 @@ def my_order_view(request):
             order = Order.objects.get(id=order_id)
             order.upsUsername = upsUsername
             order.save()
-            return redirect('home') 
+
+            req_msg = web.WCommands()
+            buy_msg = req_msg.buy.add()
+            buy_msg.orderid = order_id
+            seqNum = ack_list.add_request()  
+            buy_msg.seqnum = seqNum
+
+            sendRequest(back_fd, req_msg)
+            print("Send buy request!(after revise username)")
+            return redirect('user_home') 
     else:
         form = UpdateOrderForm()
 

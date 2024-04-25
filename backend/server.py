@@ -20,32 +20,34 @@ def world_thread(world_fd, ups_fd):
 
         while True:
             res = receiveResponse(world_fd, world.AResponses)
-            print("Recved from world!")
+            print("Recv from world!")
             
             # remove ack from ack_list
             for ack in res.acks:
+                print("Recv ack from world!")
                 ack_list.remove_ack(ack)
             
             for ready in res.ready:
-                print("Recved ready packed from world!")
+                print("Recv ready packed from world!")
                 sendAck_world(world_fd, ready.seqnum)
                 # update order statuse to "packed"
                 packed(world_fd, ready.shipid)
                 
             for err in res.error:
-               print(f"Error from world: {err.err}, Origin SeqNum: {err.originseqnum}")
+               print(f"Recv error from world: {err.err}, Origin SeqNum: {err.originseqnum}")
                sendAck_world(world_fd, err.seqnum)
                 
             for loaded_row in res.loaded:
-                print("Recved loaded from world!")
+                print("Recv loaded from world!")
                 sendAck_world(world_fd, loaded_row.seqnum)
                 # TODO 5: write loaded in handleWorld, just update order_status? has finished this!
                 loaded(world_fd, loaded_row.shipid) 
                 # TODO 6: send startDelivery to ups, has finished this!
+                #///////if ups not finish, world block, may keep resending to world
                 startDelivery(ups_fd, loaded_row.shipid)
             
             for arrived in res.arrived:
-                print("Recved arrived from world!")
+                print("Recv arrived from world!")
                 sendAck_world(world_fd, arrived.seqnum)  
                 # TODO 3: write arrived in handleWorld, just update dabase, has finished this!
                 for item in arrived.things:
@@ -65,11 +67,12 @@ def ups_thread(ups_fd, world_fd):
             
             # remove ack from ack_list
             for ack in res.acks:
+                print("Recv ack from ups!")
                 ack_list.remove_ack(ack)
                 
             # 4.22
             for check_User in res.checkUser:
-                print("Recved checkUser from ups!")
+                print("Recv checkUser from ups!")
                 sendAck_ups(ups_fd, check_User.seqnum)
                 # uodate order status and upsid, check upsid!=-1 continue, else change status
                 ups_id = check_User.upsUserID
@@ -81,14 +84,14 @@ def ups_thread(ups_fd, world_fd):
                         toPack(world_fd, oID)
                         # TODO 2: request truck from ups, has finished this!
                         #toOrderTruck(ups_fd, check_User.orderid)
-                        toOrderTruck(ups_fd, oID)
+                        toOrderTruck2(ups_fd, oID)
                 else:
                     # update order status to "error"
-                    updateOrderStatus(check_User.orderid, "error")
+                    updateOrderStatus(check_User.upsUsername, "error")
                     
                              
             for arrive in res.arrived:
-                print("Recved truck arrived from ups!")
+                print("Recv truck arrived from ups!")
                 sendAck_ups(ups_fd, arrive.seqnum)
                 # TODO 4: wait for order.status== packed,  start load, send to world
                 orderID = arrive.packageID
@@ -110,13 +113,13 @@ def ups_thread(ups_fd, world_fd):
                 toLoad(world_fd, orderID, arrive.truckID)
  
             for delivered_row in res.delivered:
-                print("Recved delivered from ups!")
+                print("Recv delivered from ups!")
                 sendAck_ups(ups_fd, delivered_row.seqnum)
                 # TODO 7: just update order status?  has finished this!
                 delivered(ups_fd, delivered_row.packageID)
                 
             for err in res.error:
-                print(f"Error from ups: {err.err}, Origin SeqNum: {err.originseqnum}")
+                print(f"Recv error from ups: {err.err}, Origin SeqNum: {err.originseqnum}")
                 sendAck_ups(ups_fd, err.seqnum)
             
     except Exception as e:
@@ -129,10 +132,10 @@ def webapp_thread(webapp_fd, world_fd, ups_fd):
         
         while True:
             res = receiveResponse(webapp_fd, web.WCommands) 
-            print("Recved from webapp!")
+            print("Recv from webapp!")
             
             for buy in res.buy:
-                print("Recved user buy sth from webapp!")
+                print("Recv user buy sth from webapp!")
                 sendAck_web(webapp_fd, buy.seqnum)
                 # 4.22 check upsname
                 Name = checkName(buy.orderid)
@@ -140,14 +143,14 @@ def webapp_thread(webapp_fd, world_fd, ups_fd):
                 if Name == None:
                     toPack(world_fd, buy.orderid)
                     # TODO 2: request truck from ups, has finished this!
-                    toOrderTruck(ups_fd, buy.orderid)
+                    toOrderTruck2(ups_fd, buy.orderid)
                 else:
                     #send to ups
                     sendName(ups_fd, Name) 
 
                 
             for askmore in res.askmore:
-                print("Recved askmore from webapp!")
+                print("Recv askmore from webapp!")
                 print("Handling webapp Waskmore!")
                 #sendAck_web(webapp_fd, askmore.seqnum)
                 # TODO 1: has finished this

@@ -55,6 +55,54 @@ def toOrderTruck(fd, orderID):
         cursor.close()
         conn.close()
     
+
+def toOrderTruck2(fd, orderID):
+    conn = get_db_connection()
+    if not conn:
+        return 
+    cursor = conn.cursor()
+
+    try:
+        req_msg = ups.ACommand()
+        ordertruck_msg = req_msg.toOrder.add()
+        # product_msg = ordertruck_msg.productInfo.add()
+        # Fetch users_orderitem, users_product, users_warehouse, and users_order details for the given orderID
+        cursor.execute("""
+            SELECT p.id, p.description, oi.quantity, w.id, w.x, w.y, o."upsUsername", o.des_x, o.des_y
+            FROM users_orderitem oi
+            JOIN users_product p ON oi.product_id = p.id
+            JOIN users_warehouse w ON p.warehouse_id = w.id
+            JOIN users_order o ON oi.order_id_id = o.id
+            WHERE oi.order_id_id = %s
+        """, (orderID,))
+        all_products = cursor.fetchall()
+        for product in all_products:
+            product_msg = ordertruck_msg.productInfo.add()
+            product_msg.productID = product[0]
+            product_msg.description = product[1]
+            product_msg.count = product[2]
+            
+        ordertruck_msg.packageID = orderID
+        ordertruck_msg.warehouseInfo.warehouseID = all_products[0][3]
+        ordertruck_msg.warehouseInfo.x = all_products[0][4]
+        ordertruck_msg.warehouseInfo.y = all_products[0][5]
+        ordertruck_msg.destinationInfo.x = all_products[0][7]
+        ordertruck_msg.destinationInfo.y = all_products[0][8]
+        ordertruck_msg.upsUsername = all_products[0][6] if all_products[0][6] is not None else 'user1'
+        
+        # generate a seq_num
+        seqNum = ack_list.add_request()
+        ordertruck_msg.seqnum = seqNum
+        print("Before send ups: toOrderTruck")
+        sendRequest(fd, req_msg)
+        #checkAndSendReq(fd, req_msg, seqNum)
+        print("(end send)After send ups: toOrderTruck")
+    
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        cursor.close()
+        conn.close()
     
 def startDelivery(fd, orderID):
     conn = get_db_connection()

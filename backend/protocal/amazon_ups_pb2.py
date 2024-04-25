@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto2',
   serialized_options=None,
-  serialized_pb=_b('\n\x10\x61mazon_ups.proto\"~\n\x08\x41\x43ommand\x12\x1d\n\x07toOrder\x18\x01 \x03(\x0b\x32\x0c.AOrderTruck\x12 \n\x07toStart\x18\x02 \x03(\x0b\x32\x0f.AStartDelivery\x12#\n\ncheckUsers\x18\x03 \x03(\x0b\x32\x0f.ACheckUsername\x12\x0c\n\x04\x61\x63ks\x18\x04 \x03(\x03\"\xae\x01\n\x0b\x41OrderTruck\x12\x11\n\tpackageID\x18\x01 \x02(\x03\x12\x1d\n\x0bproductInfo\x18\x02 \x03(\x0b\x32\x08.product\x12!\n\rwarehouseInfo\x18\x03 \x02(\x0b\x32\n.warehouse\x12%\n\x0f\x64\x65stinationInfo\x18\x04 \x02(\x0b\x32\x0c.destination\x12\x13\n\x0bupsUsername\x18\x05 \x02(\t\x12\x0e\n\x06seqnum\x18\x06 \x02(\x03\"@\n\x07product\x12\x11\n\tproductID\x18\x01 \x02(\x03\x12\x13\n\x0b\x64\x65scription\x18\x02 \x02(\t\x12\r\n\x05\x63ount\x18\x03 \x02(\x05\"6\n\twarehouse\x12\x13\n\x0bwarehouseID\x18\x01 \x02(\x05\x12\t\n\x01x\x18\x02 \x02(\x05\x12\t\n\x01y\x18\x03 \x02(\x05\"#\n\x0b\x64\x65stination\x12\t\n\x01x\x18\x01 \x02(\x05\x12\t\n\x01y\x18\x02 \x02(\x05\"3\n\x0e\x41StartDelivery\x12\x11\n\tpackageID\x18\x01 \x02(\x03\x12\x0e\n\x06seqnum\x18\x02 \x02(\x03\"5\n\x0e\x41\x43heckUsername\x12\x13\n\x0bupsUsername\x18\x01 \x02(\t\x12\x0e\n\x06seqnum\x18\x02 \x02(\x03\"\x9a\x01\n\x08UCommand\x12\x1f\n\x07\x61rrived\x18\x01 \x03(\x0b\x32\x0e.UTruckArrival\x12\x1e\n\tdelivered\x18\x02 \x03(\x0b\x32\x0b.UDelivered\x12*\n\tcheckUser\x18\x03 \x03(\x0b\x32\x17.UCheckUsernameResponse\x12\x13\n\x05\x65rror\x18\x04 \x03(\x0b\x32\x04.Err\x12\x0c\n\x04\x61\x63ks\x18\x05 \x03(\x03\"8\n\x03\x45rr\x12\x0b\n\x03\x65rr\x18\x01 \x02(\t\x12\x14\n\x0coriginseqnum\x18\x02 \x02(\x03\x12\x0e\n\x06seqnum\x18\x03 \x02(\x03\"C\n\rUTruckArrival\x12\x11\n\tpackageID\x18\x01 \x02(\x03\x12\x0f\n\x07truckID\x18\x02 \x02(\x05\x12\x0e\n\x06seqnum\x18\x03 \x02(\x03\"/\n\nUDelivered\x12\x11\n\tpackageID\x18\x01 \x02(\x03\x12\x0e\n\x06seqnum\x18\x02 \x02(\x03\"P\n\x16UCheckUsernameResponse\x12\x13\n\x0bupsUsername\x18\x01 \x02(\t\x12\x11\n\tupsUserID\x18\x02 \x02(\x03\x12\x0e\n\x06seqnum\x18\x03 \x02(\x03')
+  serialized_pb=_b('\n\x10\x61mazon_ups.proto\"~\n\x08\x41\x43ommand\x12\x1d\n\x07toOrder\x18\x01 \x03(\x0b\x32\x0c.AOrderTruck\x12 \n\x07toStart\x18\x02 \x03(\x0b\x32\x0f.AStartDelivery\x12#\n\ncheckUsers\x18\x03 \x03(\x0b\x32\x0f.ACheckUsername\x12\x0c\n\x04\x61\x63ks\x18\x04 \x03(\x03\"\xae\x01\n\x0b\x41OrderTruck\x12\x11\n\tpackageID\x18\x01 \x02(\x03\x12\x1d\n\x0bproductInfo\x18\x02 \x03(\x0b\x32\x08.product\x12!\n\rwarehouseInfo\x18\x03 \x02(\x0b\x32\n.warehouse\x12%\n\x0f\x64\x65stinationInfo\x18\x04 \x02(\x0b\x32\x0c.destination\x12\x13\n\x0bupsUsername\x18\x05 \x02(\t\x12\x0e\n\x06seqnum\x18\x06 \x02(\x03\"@\n\x07product\x12\x11\n\tproductID\x18\x01 \x02(\x03\x12\x13\n\x0b\x64\x65scription\x18\x02 \x02(\t\x12\r\n\x05\x63ount\x18\x03 \x02(\x05\"6\n\twarehouse\x12\x13\n\x0bwarehouseID\x18\x01 \x02(\x05\x12\t\n\x01x\x18\x02 \x02(\x05\x12\t\n\x01y\x18\x03 \x02(\x05\"#\n\x0b\x64\x65stination\x12\t\n\x01x\x18\x01 \x02(\x05\x12\t\n\x01y\x18\x02 \x02(\x05\"3\n\x0e\x41StartDelivery\x12\x11\n\tpackageID\x18\x01 \x02(\x03\x12\x0e\n\x06seqnum\x18\x02 \x02(\x03\"5\n\x0e\x41\x43heckUsername\x12\x13\n\x0bupsUsername\x18\x01 \x02(\t\x12\x0e\n\x06seqnum\x18\x02 \x02(\x03\"\xc0\x01\n\x08UCommand\x12\x1f\n\x07\x61rrived\x18\x01 \x03(\x0b\x32\x0e.UTruckArrival\x12\x1e\n\tdelivered\x18\x02 \x03(\x0b\x32\x0b.UDelivered\x12*\n\tcheckUser\x18\x03 \x03(\x0b\x32\x17.UCheckUsernameResponse\x12$\n\x07\x63hanged\x18\x04 \x03(\x0b\x32\x13.UChangeDestination\x12\x13\n\x05\x65rror\x18\x05 \x03(\x0b\x32\x04.Err\x12\x0c\n\x04\x61\x63ks\x18\x06 \x03(\x03\"8\n\x03\x45rr\x12\x0b\n\x03\x65rr\x18\x01 \x02(\t\x12\x14\n\x0coriginseqnum\x18\x02 \x02(\x03\x12\x0e\n\x06seqnum\x18\x03 \x02(\x03\"]\n\x12UChangeDestination\x12\x11\n\tpackageID\x18\x01 \x02(\x03\x12$\n\x0eNewDestination\x18\x02 \x02(\x0b\x32\x0c.destination\x12\x0e\n\x06seqnum\x18\x03 \x02(\x03\"C\n\rUTruckArrival\x12\x11\n\tpackageID\x18\x01 \x02(\x03\x12\x0f\n\x07truckID\x18\x02 \x02(\x05\x12\x0e\n\x06seqnum\x18\x03 \x02(\x03\"/\n\nUDelivered\x12\x11\n\tpackageID\x18\x01 \x02(\x03\x12\x0e\n\x06seqnum\x18\x02 \x02(\x03\"P\n\x16UCheckUsernameResponse\x12\x13\n\x0bupsUsername\x18\x01 \x02(\t\x12\x11\n\tupsUserID\x18\x02 \x02(\x03\x12\x0e\n\x06seqnum\x18\x03 \x02(\x03')
 )
 
 
@@ -376,15 +376,22 @@ _UCOMMAND = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='error', full_name='UCommand.error', index=3,
+      name='changed', full_name='UCommand.changed', index=3,
       number=4, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='acks', full_name='UCommand.acks', index=4,
-      number=5, type=3, cpp_type=2, label=3,
+      name='error', full_name='UCommand.error', index=4,
+      number=5, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='acks', full_name='UCommand.acks', index=5,
+      number=6, type=3, cpp_type=2, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -402,7 +409,7 @@ _UCOMMAND = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=593,
-  serialized_end=747,
+  serialized_end=785,
 )
 
 
@@ -446,8 +453,53 @@ _ERR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=749,
-  serialized_end=805,
+  serialized_start=787,
+  serialized_end=843,
+)
+
+
+_UCHANGEDESTINATION = _descriptor.Descriptor(
+  name='UChangeDestination',
+  full_name='UChangeDestination',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='packageID', full_name='UChangeDestination.packageID', index=0,
+      number=1, type=3, cpp_type=2, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='NewDestination', full_name='UChangeDestination.NewDestination', index=1,
+      number=2, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='seqnum', full_name='UChangeDestination.seqnum', index=2,
+      number=3, type=3, cpp_type=2, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=845,
+  serialized_end=938,
 )
 
 
@@ -491,8 +543,8 @@ _UTRUCKARRIVAL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=807,
-  serialized_end=874,
+  serialized_start=940,
+  serialized_end=1007,
 )
 
 
@@ -529,8 +581,8 @@ _UDELIVERED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=876,
-  serialized_end=923,
+  serialized_start=1009,
+  serialized_end=1056,
 )
 
 
@@ -574,8 +626,8 @@ _UCHECKUSERNAMERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=925,
-  serialized_end=1005,
+  serialized_start=1058,
+  serialized_end=1138,
 )
 
 _ACOMMAND.fields_by_name['toOrder'].message_type = _AORDERTRUCK
@@ -587,7 +639,9 @@ _AORDERTRUCK.fields_by_name['destinationInfo'].message_type = _DESTINATION
 _UCOMMAND.fields_by_name['arrived'].message_type = _UTRUCKARRIVAL
 _UCOMMAND.fields_by_name['delivered'].message_type = _UDELIVERED
 _UCOMMAND.fields_by_name['checkUser'].message_type = _UCHECKUSERNAMERESPONSE
+_UCOMMAND.fields_by_name['changed'].message_type = _UCHANGEDESTINATION
 _UCOMMAND.fields_by_name['error'].message_type = _ERR
+_UCHANGEDESTINATION.fields_by_name['NewDestination'].message_type = _DESTINATION
 DESCRIPTOR.message_types_by_name['ACommand'] = _ACOMMAND
 DESCRIPTOR.message_types_by_name['AOrderTruck'] = _AORDERTRUCK
 DESCRIPTOR.message_types_by_name['product'] = _PRODUCT
@@ -597,6 +651,7 @@ DESCRIPTOR.message_types_by_name['AStartDelivery'] = _ASTARTDELIVERY
 DESCRIPTOR.message_types_by_name['ACheckUsername'] = _ACHECKUSERNAME
 DESCRIPTOR.message_types_by_name['UCommand'] = _UCOMMAND
 DESCRIPTOR.message_types_by_name['Err'] = _ERR
+DESCRIPTOR.message_types_by_name['UChangeDestination'] = _UCHANGEDESTINATION
 DESCRIPTOR.message_types_by_name['UTruckArrival'] = _UTRUCKARRIVAL
 DESCRIPTOR.message_types_by_name['UDelivered'] = _UDELIVERED
 DESCRIPTOR.message_types_by_name['UCheckUsernameResponse'] = _UCHECKUSERNAMERESPONSE
@@ -664,6 +719,13 @@ Err = _reflection.GeneratedProtocolMessageType('Err', (_message.Message,), dict(
   # @@protoc_insertion_point(class_scope:Err)
   ))
 _sym_db.RegisterMessage(Err)
+
+UChangeDestination = _reflection.GeneratedProtocolMessageType('UChangeDestination', (_message.Message,), dict(
+  DESCRIPTOR = _UCHANGEDESTINATION,
+  __module__ = 'amazon_ups_pb2'
+  # @@protoc_insertion_point(class_scope:UChangeDestination)
+  ))
+_sym_db.RegisterMessage(UChangeDestination)
 
 UTruckArrival = _reflection.GeneratedProtocolMessageType('UTruckArrival', (_message.Message,), dict(
   DESCRIPTOR = _UTRUCKARRIVAL,
