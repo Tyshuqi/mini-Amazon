@@ -26,32 +26,17 @@ def serverSocket(host, port):
     server_fd.listen(10)
     # webapp_socket, addr = server_fd.accept()
     return server_fd
-    
 
-# convert message to string and send
-# def sendRequest(fd, req_msg):
-#     req_string = req_msg.SerializeToString()
-#     _EncodeVarint(fd.send, len(req_string), None)  # Encodes and sends the length
-#     fd.send(req_string)  # Then send the message
-
-
+# sendRequest : convert message to string and send
 def sendRequest(socket, request):
-    # Serialize the request to a byte string
     serialized_request = request.SerializeToString()
-    
-    # Get the size of the serialized request
-    size = len(serialized_request)  # You can also use request.ByteSize() if it's specifically available
-    
+    size = len(serialized_request) 
     # Encode the size using varint encoding
     encoded_size = _VarintBytes(size)
-    
-    # Combine the encoded size and the serialized request
     full_message = encoded_size + serialized_request
-    
-    # Send the full message using socket.sendall to ensure all data is sent
     socket.sendall(full_message)
     
-#receive string and convert to message  
+#receiveResponse : receive string and convert to message  
 def receiveResponse(fd, res_type):
     # var_int_buff = []
     # while True:
@@ -78,11 +63,6 @@ def receiveResponse(fd, res_type):
         
         if new_pos != 0:
             break
-    
-    # whole_message = fd.recv(msg_len)  # Read the whole message based on the length prefix
-    
-    # if len(whole_message) < msg_len:
-    #     raise IOError("Failed to receive the entire message")
 
     whole_message = b''
     while len(whole_message) < msg_len:
