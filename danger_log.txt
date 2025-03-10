@@ -1,0 +1,26 @@
+4.10
+We create three threads for communicating with the web, world and ups.
+
+4.12
+If we have not received the ack, we need to send the message again until we receive the ack.
+So every time we send a message, we add seqnum in a list and when we receive the ack, we remove the seqnum from the list.
+Also, we sleep(2) for waiting 2 seconds to check acks again.
+
+4.13
+Existed models can not meet our requirements, so we add a new model OrderItem. One order can include multiple items.
+
+4.14
+After everytime test, we delete all the data in the database.
+
+4.15
+At first, we only create 3 threads to receive and address different responses. However, there is still window periods for 
+receiving. 
+So we add thread pool. We keep receiving, and once receive something, we will create new process to handle them.
+
+4.20
+PostgreSQL handles identifiers (like table and column names) in a case-sensitive manner when they are quoted. We have some 
+column name created with quotes and in mixed case (e.g., "upsUsername"). So we need to reference it with quotes in SQL.
+
+4.22
+When we receive messages from UPS, sometimes we cannot receive enough lengths in one time. So we add a for loop to receive 
+the the whole message.
